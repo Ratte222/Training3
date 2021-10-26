@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <script type="text/javascript">
+        if (!!window.EventSource) {
+            var source = new EventSource('https://localhost:5001/api/SSE');
+            source.addEventListener('message', function (e) {
+                console.log(e.data);
+            }, false)
+
+            source.addEventListener('open', function (e) {
+                console.log(e);
+            }, false)
+
+            source.addEventListener('error', function (e) {
+                if (e.eventPhase == EventSource.CLOSED)
+                    source.close()
+                if (e.target.readyState == EventSource.CLOSED) {
+                    console.log("Disconnected");
+                }
+                else if (e.target.readyState == EventSource.CONNECTING) {
+                    console.log("Connecting...");
+                }
+            }, false)
+        } else {
+            console.log("Your browser doesn't support SSE")
+        }
+    </script>
+</body>
+</html>
