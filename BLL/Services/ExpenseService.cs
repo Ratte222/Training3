@@ -23,9 +23,9 @@ namespace BLL.Services
             return _context.Expenses.Include(e=>e.Category).FirstOrDefault(func);
         }
 
-        public async Task<PageResponse<Expense>> GetPageResponse(PageResponse<Expense> pageResponse)
+        public async Task GetPageResponse(PageResponse<Expense> pageResponse)
         {
-            return await Paginate(GetAll_Queryable(), pageResponse);
+            await Paginate(GetAll_Queryable(), pageResponse);
         }
     }
 }

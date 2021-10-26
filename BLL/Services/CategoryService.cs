@@ -14,9 +14,9 @@ namespace BLL.Services
     {
         public CategoryService(AppDBContext context) : base(context) { }
 
-        public async Task<PageResponse<Category>> GetPageResponse(PageResponse<Category> pageResponse)
+        public async Task GetPageResponse(PageResponse<Category> pageResponse)
         {
-            return await Paginate(GetAll_Queryable(), pageResponse);
+            await Paginate(GetAll_Queryable(), pageResponse);
         }
     }
 }

@@ -89,7 +89,7 @@ namespace BLL.Services.BaseService
             _context.SaveChanges();
         }
 
-        protected virtual async Task<PageResponse<T>> Paginate(IQueryable<T> query, PageResponse<T> pageResponse)
+        protected virtual async Task Paginate(IQueryable<T> query, PageResponse<T> pageResponse)
         {
             var totalCount = await query.CountAsync();
 
@@ -103,7 +103,7 @@ namespace BLL.Services.BaseService
                 .ToListAsync();
             }
 
-            return pageResponse;
+            //return pageResponse;
         }
 
         #region IDisposable

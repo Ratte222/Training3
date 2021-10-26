@@ -10,6 +10,6 @@ namespace BLL.Interfaces
 {
     public interface ICategoryService : IBaseService<Category>
     {
-        public Task<PageResponse<Category>> GetPageResponse(PageResponse<Category> pageResponse);
+        public Task GetPageResponse(PageResponse<Category> pageResponse);
     }
 }

@@ -36,7 +36,7 @@ namespace Training3.Controllers
         public async Task<IActionResult> GetExpenses(int? pageLength = null, int? pageNumber = null)
         {
             PageResponse<Expense> pageResponse = new PageResponse<Expense>(pageLength, pageNumber);
-            pageResponse = await _expenseService.GetPageResponse(pageResponse);
+            await _expenseService.GetPageResponse(pageResponse);
             var pageResponseDTO = _mapper.Map<PageResponse<ExpenseDTO>>(pageResponse);
             return Ok(pageResponseDTO);
         }

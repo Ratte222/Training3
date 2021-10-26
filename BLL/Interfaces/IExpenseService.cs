@@ -10,6 +10,6 @@ namespace BLL.Interfaces
 {
     public interface IExpenseService:IBaseService<Expense>
     {
-        public Task<PageResponse<Expense>> GetPageResponse(PageResponse<Expense> pageResponse);
+        public Task GetPageResponse(PageResponse<Expense> pageResponse);
     }
 }

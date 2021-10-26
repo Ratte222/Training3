@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Training3.Events;
 
 namespace Training3
 {
@@ -46,8 +47,9 @@ namespace Training3
             services.AddScoped<IMapper, ServiceMapper>();
             #endregion
 
+            services.AddSingleton<ExpenseEvent>();
             services.AddScoped<IExpenseService, ExpenseService>();
-            services.AddScoped<ICategoryService, ExpenseService>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             #region Swagger
             services.AddSwaggerGen(c =>
