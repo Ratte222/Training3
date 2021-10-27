@@ -8,14 +8,23 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using AuxiliaryLib.Helpers;
 using System.Threading.Tasks;
+using BLL.Events;
 
 namespace BLL.Services
 {
     public class ExpenseService : BaseService<Expense>, IExpenseService
     {
-        public ExpenseService(AppDBContext appDBContext) : base(appDBContext)
+        private readonly ExpenseEvents _expenseEvents;
+        public ExpenseService(AppDBContext appDBContext, ExpenseEvents expenseEvents) : base(appDBContext)
         {
-            
+            (_expenseEvents) = (expenseEvents);
+        }
+
+        public override Expense Create(Expense model)
+        {
+            //Expense expense = base.Create(model);
+            _expenseEvents.AddExpense_Invoke(model);
+            return model;
         }
 
         public override Expense Get(Func<Expense, bool> func)

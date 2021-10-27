@@ -19,7 +19,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Training3.Events;
+using BLL.Events;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 namespace Training3
 {
@@ -35,7 +37,17 @@ namespace Training3
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<GzipCompressionProviderOptions>(options =>
+            {
+                options.Level = CompressionLevel.Optimal;
+            });
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();                
+            });
             services.AddControllers();
+
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDBContext>(options => options.UseMySql(connection/*, new MySqlServerVersion(new Version(8, 0, 27))*/),
@@ -46,10 +58,6 @@ namespace Training3
             services.AddSingleton(config);
             services.AddScoped<IMapper, ServiceMapper>();
             #endregion
-
-            services.AddSingleton<ExpenseEvent>();
-            services.AddScoped<IExpenseService, ExpenseService>();
-            services.AddScoped<ICategoryService, CategoryService>();
 
             #region Swagger
             services.AddSwaggerGen(c =>
@@ -83,6 +91,10 @@ namespace Training3
                 //});
             });
             #endregion
+
+            services.AddSingleton<ExpenseEvents>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IExpenseService, ExpenseService>();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -105,7 +117,7 @@ namespace Training3
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseResponseCompression();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

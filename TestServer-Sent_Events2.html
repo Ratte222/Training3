@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <script type="text/javascript">
+        (() => {
+            if (!window.EventSource) {
+                alert("Your browser does not support EventSource (IE/Edge?), please use a browser with EventSource support (see http://caniuse.com/#search=EventSource)");
+                return;
+            }
+            var source = new EventSource('https://localhost:5001/api/SSE/AddExpense');
+            source.addEventListener("helo", function (e) {
+                // initial message
+                console.log("SSE: HELO message received");
+            }, false);
+
+            source.addEventListener("AddExpense", function (e) {
+                try {
+                    console.log(`AddExpense`)
+                    var data = JSON.parse(e.data);
+                    for (const key in data) {
+                        console.log(`\t${key} = value '${data[key]}'`)
+                    }
+
+                } catch (e) {
+                    console.log("Failed to parse server event: " + e.data);
+                    console.log(e);
+                }
+            }, false);
+
+            source.addEventListener("log", function (e) {
+                //console.log("message received: " + e.data);
+                try {
+                    var data = JSON.parse(e.data);
+                    // TODO: process the server event 
+                } catch (e) {
+                    console.log("Failed to parse server event: " + e.data);
+                    console.log(e);
+                }
+            }, false);
+
+            source.addEventListener("open", function (e) {
+                console.log("SSE: connection opened");
+                // Connection was opened.
+            }, false);
+
+            source.addEventListener("error", function (e) {
+                if (e.readyState == EventSource.CLOSED) {
+                    // Connection was closed.
+                    console.log("SSE: connection closed");
+                } else {
+                    console.log(e);
+                }
+            }, false);
+        })();
+    </script>
+</body>
+</html>

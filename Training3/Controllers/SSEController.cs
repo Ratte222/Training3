@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BLL.Events;
+using BLL.Interfaces;
+using DAL.Entity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,6 +24,12 @@ namespace Training3.Controllers
     [ApiController]
     public class SSEController : ControllerBase
     {
+        private readonly ExpenseEvents _expenseEvents;
+        public SSEController(ExpenseEvents expenseEvents)
+        {
+            (_expenseEvents) = (expenseEvents);
+        }
+
         [HttpGet]
         public async Task Get()
         {
@@ -35,27 +46,44 @@ namespace Training3.Controllers
             }
         }
 
+        [HttpGet("AddExpense")]
         public IActionResult Message()
         {
-            return new PushStreamResult(OnStreamAvailabe, HttpContext.RequestAborted);
+            return new PushStreamResult((Action<Stream, CancellationToken>)OnStreamAvailabe, HttpContext.RequestAborted, "text/event-stream");
         }
 
         void OnStreamAvailabe(Stream stream, CancellationToken requestAborted)
         {
             var wait = requestAborted.WaitHandle;
-            var handler = (XLoggerEvent ent) => { ... }
-            m_logStore.OnEvent += handler;
+            Action<Expense> handler = (expense) =>
+            {
+                StreamWriter writer = null;
+                try
+                {
+                    writer = new StreamWriter(stream);
+                    WriteEvent(writer, "AddExpense", JsonConvert.SerializeObject(expense)/*$"I am work! {DateTime.Now}"*/);
+                    //writer.FlushAsync();
+                }
+                finally
+                {
+                    writer.DisposeAsync().GetAwaiter();
+                }
+            };
+            _expenseEvents.AddExpense += handler;
 
-            wait.WaitOne(); m_logStore.OnEvent -= handler;
+            wait.WaitOne();
+            _expenseEvents.AddExpense -= handler;
         }
-        [HttpGet]
-        public HttpResponseMessage Message()
-        {
-            // TODO: authorize user (out of the post scope)
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK); response.Content = new PushStreamContent((Action<Stream, HttpContent, TransportContext>)OnStreamAvailabe,
-         "text/event-stream");
-            return response;
-        }
+        
+        //[HttpGet]
+        //public HttpResponseMessage Message()
+        //{
+        //    // TODO: authorize user (out of the post scope)
+        //    HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK); 
+        //    response.Content = new PushStreamContent((Action<Stream, HttpContent, TransportContext>)OnStreamAvailabe,
+        // "text/event-stream");
+        //    return response;
+        //}
         
         private static void WriteEvent(TextWriter writer, string eventType, string data)
         {
@@ -65,25 +93,27 @@ namespace Training3.Controllers
             }
             writer.WriteLine("data:" + data ?? "");
             writer.WriteLine();
-            writer.Flush(); // StreamWriter.Flush calls Flush on underlying Stream
+            writer.WriteLine();
+            writer.FlushAsync().GetAwaiter(); // StreamWriter.Flush calls Flush on underlying Stream
         }
     }
     public class PushStreamResult : IActionResult
     {
-        private readonly Action<Stream> _onStreamAvailabe;
+        private readonly Action<Stream, CancellationToken> _onStreamAvailabe;
         private readonly string _contentType;
+        private readonly CancellationToken _requestAborted;
 
-        public PushStreamResult(Action<Stream> onStreamAvailabe, string contentType)
+        public PushStreamResult(Action<Stream, CancellationToken> onStreamAvailabe, CancellationToken requestAborted, string contentType)
         {
-            _onStreamAvailabe = onStreamAvailabe;
-            _contentType = contentType;
+            (_onStreamAvailabe, _requestAborted, _contentType) = (onStreamAvailabe, requestAborted, contentType);
         }
 
         public Task ExecuteResultAsync(ActionContext context)
         {
             var stream = context.HttpContext.Response.Body;
+            context.HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
             context.HttpContext.Response.GetTypedHeaders().ContentType = new MediaTypeHeaderValue(_contentType);
-            _onStreamAvailabe(stream);
+            _onStreamAvailabe(stream, _requestAborted);
             return Task.CompletedTask;
         }
     }
