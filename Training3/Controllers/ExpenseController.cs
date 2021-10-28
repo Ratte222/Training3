@@ -28,8 +28,9 @@ namespace Training3.Controllers
         {
             if (id < 1)
                 return BadRequest();
-            var expense  = _mapper.Map<ExpenseDTO>(_expenseService.Get(i => { return i.Id == id; }));
-            return Ok(expense);
+            Expense expense = _expenseService.Get(i => { return i.Id == id; });
+            var expenseDTO  = _mapper.Map<ExpenseDTO>(expense);
+            return Ok(expenseDTO);
         }
 
         [HttpGet]

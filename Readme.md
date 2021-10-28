@@ -1,7 +1,7 @@
 # What was done
 - work with mapster library
 - work with server-sent events. To be in SSEController. Has clsint to be in "TestServer-Sent_Events2.html"
-- (do not work) added compressing ot response to middleware (https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression?view=aspnetcore-5.0)
+- added compressing ot response to middleware (https://docs.microsoft.com/en-us/aspnet/core/performance/response-compression?view=aspnetcore-5.0)
 
 ## Example of work server-sent events
 Console in browser at the file "TestServer-Sent_Events2.html" after sending a message to endpoint "AddExpense".

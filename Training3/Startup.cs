@@ -43,7 +43,8 @@ namespace Training3
             });
             services.AddResponseCompression(options =>
             {
-                options.Providers.Add<BrotliCompressionProvider>();
+                //options.Providers.Add<BrotliCompressionProvider>();
+                options.EnableForHttps = true;
                 options.Providers.Add<GzipCompressionProvider>();                
             });
             services.AddControllers();
