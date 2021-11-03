@@ -1,0 +1,159 @@
+{
+  "Categories": [
+    {
+      "Name": "Public transport",
+      "Aliases": "Bus, trolleybus, tram, route taxi",
+      "Is_income": false,
+      "Is_base_expense": false,
+      "Is_base_income": false
+    },
+    {
+      "Name": "Eat",
+      "Aliases": "Product, products, coffe, tea",
+      "Is_income": false,
+      "Is_base_expense": true,
+      "Is_base_income": false
+    },
+    {
+      "Name": "Phone",
+      "Aliases": "Operator, kyevstar, vodafone",
+      "Is_income": false,
+      "Is_base_expense": false,
+      "Is_base_income": false
+    },
+    {
+      "Name": "Internet",
+      "Aliases": "TRK, fregat",
+      "Is_income": false,
+      "Is_base_expense": false,
+      "Is_base_income": false
+    }
+  ],
+  "Expenses": [
+    {
+      "Amount": 10,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 65,
+      "CategoryId": 4,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 54,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 100,
+      "CategoryId": 3,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 160,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 101,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 300,
+      "CategoryId": 4,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 234,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 1246,
+      "CategoryId": 3,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 1436,
+      "CategoryId": 4,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 212,
+      "CategoryId": 3,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 132,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 968,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 753,
+      "CategoryId": 4,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 542,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 76,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 321,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 65,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 765,
+      "CategoryId": 4,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 678,
+      "CategoryId": 3,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 758,
+      "CategoryId": 3,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 6754,
+      "CategoryId": 4,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 7684,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 245,
+      "CategoryId": 2,
+      "Created": "2021-11-03T08:50:14.666Z"
+    },
+    {
+      "Amount": 90,
+      "CategoryId": 1,
+      "Created": "2021-11-03T08:50:14.666Z"
+    }
+  ]
+}

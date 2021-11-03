@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using BLL.Events;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using DAL.Entity;
 
 namespace Training3
 {
@@ -29,7 +30,10 @@ namespace Training3
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+               .AddJsonFile("InitData.json").AddConfiguration(configuration);
+            Configuration = builder.Build();
+            //Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -41,11 +45,16 @@ namespace Training3
             {
                 options.Level = CompressionLevel.Optimal;
             });
+            services.Configure<BrotliCompressionProvider>(options =>
+            {
+                
+            });
             services.AddResponseCompression(options =>
             {
                 //options.Providers.Add<BrotliCompressionProvider>();
                 options.EnableForHttps = true;
-                options.Providers.Add<GzipCompressionProvider>();                
+                options.Providers.Add<GzipCompressionProvider>();
+                //options.Providers.Add<BrotliCompressionProvider>();
             });
             services.AddControllers();
 
@@ -102,7 +111,9 @@ namespace Training3
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDBContext applicationContext)
         {
             applicationContext.Database.Migrate();
-            DbInitializer.Initialize(applicationContext);
+            DbInitializer.Initialize(applicationContext, 
+                Configuration.GetSection("Categories").Get<List<Category>>(),
+                Configuration.GetSection("Expenses").Get<List<Expense>>());
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
