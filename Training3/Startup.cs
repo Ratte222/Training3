@@ -23,6 +23,7 @@ using BLL.Events;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using DAL.Entity;
+using Serilog;
 
 namespace Training3
 {
@@ -104,7 +105,9 @@ namespace Training3
 
             services.AddSingleton<ExpenseEvents>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IExpenseService, ExpenseService>();            
+            services.AddScoped<IExpenseService, ExpenseService>();
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

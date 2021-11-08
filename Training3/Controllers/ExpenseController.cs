@@ -5,6 +5,8 @@ using DAL.Entity;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +20,11 @@ namespace Training3.Controllers
     {
         private readonly IExpenseService _expenseService;
         private readonly IMapper _mapper;
-        public ExpenseController(IExpenseService expenseService, IMapper mapper)
+        private readonly ILogger<ExpenseController> _logger;
+        public ExpenseController(IExpenseService expenseService, IMapper mapper,
+            ILogger<ExpenseController> logger)
         {
-            (_expenseService, _mapper) = (expenseService, mapper);
+            (_expenseService, _mapper, _logger) = (expenseService, mapper, logger);
         }
 
         [HttpGet("{id}")]
@@ -30,6 +34,7 @@ namespace Training3.Controllers
                 return BadRequest();
             Expense expense = _expenseService.Get(i => { return i.Id == id; });
             var expenseDTO  = _mapper.Map<ExpenseDTO>(expense);
+            _logger.LogWarning(JsonConvert.SerializeObject(expenseDTO));
             return Ok(expenseDTO);
         }
 
@@ -39,6 +44,7 @@ namespace Training3.Controllers
             PageResponse<Expense> pageResponse = new PageResponse<Expense>(pageLength, pageNumber);
             await _expenseService.GetPageResponse(pageResponse);
             var pageResponseDTO = _mapper.Map<PageResponse<ExpenseDTO>>(pageResponse);
+            _logger.LogInformation(JsonConvert.SerializeObject(pageResponseDTO));
             return Ok(pageResponseDTO);
         }
 
