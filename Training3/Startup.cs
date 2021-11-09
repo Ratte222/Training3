@@ -52,7 +52,7 @@ namespace Training3
             services.AddResponseCompression(options =>
             {
                 //options.Providers.Add<BrotliCompressionProvider>();
-                options.EnableForHttps = true;
+                //options.EnableForHttps = true;
                 options.Providers.Add<GzipCompressionProvider>();
                 //options.Providers.Add<BrotliCompressionProvider>();
             });
@@ -127,12 +127,17 @@ namespace Training3
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            // Enable automatic tracing integration.
+            // Make sure to put this middleware right after `UseRouting()`.
+            app.UseSentryTracing();
             app.UseAuthorization();
             app.UseResponseCompression();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                //endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

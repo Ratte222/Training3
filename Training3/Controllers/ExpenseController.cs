@@ -5,6 +5,7 @@ using DAL.Entity;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,28 +19,45 @@ namespace Training3.Controllers
     {
         private readonly IExpenseService _expenseService;
         private readonly IMapper _mapper;
-        public ExpenseController(IExpenseService expenseService, IMapper mapper)
+        private readonly IHub _sentryHub;
+        public ExpenseController(IExpenseService expenseService, IMapper mapper, IHub sentryHub)
         {
-            (_expenseService, _mapper) = (expenseService, mapper);
+            (_expenseService, _mapper, _sentryHub) = (expenseService, mapper, sentryHub);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetExpese(int id)
         {
+            var childSpan = _sentryHub.GetSpan()?.StartChild("additional-work");
             if (id < 1)
-                return BadRequest();
+            {
+                childSpan?.Finish(SpanStatus.OutOfRange);
+                return BadRequest(); 
+            }
             Expense expense = _expenseService.Get(i => { return i.Id == id; });
             var expenseDTO  = _mapper.Map<ExpenseDTO>(expense);
+            childSpan?.Finish(SpanStatus.Ok);
             return Ok(expenseDTO);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetExpenses(int? pageLength = null, int? pageNumber = null)
         {
-            PageResponse<Expense> pageResponse = new PageResponse<Expense>(pageLength, pageNumber);
-            await _expenseService.GetPageResponse(pageResponse);
-            var pageResponseDTO = _mapper.Map<PageResponse<ExpenseDTO>>(pageResponse);
-            return Ok(pageResponseDTO);
+            var childSpan = _sentryHub.GetSpan()?.StartChild("additional-work");
+            try
+            {
+                PageResponse<Expense> pageResponse = new PageResponse<Expense>(pageLength, pageNumber);
+                await _expenseService.GetPageResponse(pageResponse);
+                var pageResponseDTO = _mapper.Map<PageResponse<ExpenseDTO>>(pageResponse);
+                childSpan?.Finish(SpanStatus.Ok);
+                return Ok(pageResponseDTO);
+            }
+            catch(Exception ex)
+            {
+                childSpan?.Finish(ex);
+                return this.StatusCode(500);
+            }
+            
         }
 
         [HttpPost]
