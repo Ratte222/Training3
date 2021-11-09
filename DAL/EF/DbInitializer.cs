@@ -21,5 +21,16 @@ namespace DAL.EF
                 context.SaveChanges();
             }
         }
+
+        public static void Initialize(QueueSystemDbContext context, List<Notification> notifications)
+        {
+            //initialize db from hard disk
+            if(!context.Notifications.Any())
+            {
+                context.Notifications.AddRange(notifications);
+                context.SaveChanges();
+            }
+
+        }
     }
 }

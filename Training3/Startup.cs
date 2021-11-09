@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,8 @@ using BLL.Events;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using DAL.Entity;
+using System.Net.Mail;
+using System.Net;
 
 namespace Training3
 {
@@ -31,7 +34,9 @@ namespace Training3
         public Startup(IConfiguration configuration)
         {
             var builder = new ConfigurationBuilder()
-               .AddJsonFile("InitData.json").AddConfiguration(configuration);
+               .AddJsonFile("InitData.json")
+               .AddJsonFile("InitNotificationData.json")
+               .AddConfiguration(configuration);
             Configuration = builder.Build();
             //Configuration = configuration;
         }
@@ -58,10 +63,38 @@ namespace Training3
             });
             services.AddControllers();
 
-
+            #region DatabaseConfig
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDBContext>(options => options.UseMySql(connection/*, new MySqlServerVersion(new Version(8, 0, 27))*/),
                 ServiceLifetime.Transient);
+
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"));
+            #endregion
+
+            #region Config
+            var mailAddresConfigSection = Configuration.GetSection("EmailConfiguration");
+            //services.Configure<SmtpConfig>(mailAddresConfigSection);
+            services.AddSingleton<IEmailConfiguration>(Configuration.GetSection("EmailConfiguration")
+                .Get<EmailConfiguration>());
+            var smtpConfig = mailAddresConfigSection.Get<EmailConfiguration>();
+            #endregion
+
+            #region FluentEmail_Smtp
+            SmtpClient smtp = new SmtpClient
+            {
+                //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
+                Host = smtpConfig.SmtpHost,
+                Port = smtpConfig.SmtpPort,
+                UseDefaultCredentials = true,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                //Enter the user name and password of your sending SMTP server here
+                Credentials = new NetworkCredential(smtpConfig.SmtpEmail, smtpConfig.SmtpPassword)
+            };
+            services
+                .AddFluentEmail(smtpConfig.SmtpEmail)
+                .AddSmtpSender(smtp); //configure host and port
+            #endregion
 
             #region Mapster
             var config = new TypeAdapterConfig();
@@ -104,16 +137,22 @@ namespace Training3
 
             services.AddSingleton<ExpenseEvents>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IExpenseService, ExpenseService>();            
+            services.AddScoped<IExpenseService, ExpenseService>();
+            services.AddScoped<IEmailService, EmailService>();
+
+            services.AddHostedService<NotificationServiceBackground>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDBContext applicationContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDBContext applicationContext,
+            QueueSystemDbContext queueSystemDbContext)
         {
             applicationContext.Database.Migrate();
             DbInitializer.Initialize(applicationContext, 
                 Configuration.GetSection("Categories").Get<List<Category>>(),
                 Configuration.GetSection("Expenses").Get<List<Expense>>());
+            var notifications = Configuration.GetSection("Notifications").Get<List<Notification>>();
+            DbInitializer.Initialize(queueSystemDbContext, notifications);
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

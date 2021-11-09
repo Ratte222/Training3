@@ -1,0 +1,14 @@
+{
+  "Notifications": [
+    {
+      "TypeNotification": 1,
+      "Recipient": "Vitaly",
+      "Sender": "Artur",
+      "Heading": "Test",
+      "MessageBody": "Test body",
+      "IsSend": false,
+      "NumberOfAttemptToSent": 1
+    }
+  ]
+  
+}
