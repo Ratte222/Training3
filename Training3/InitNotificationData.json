@@ -4,10 +4,50 @@
       "TypeNotification": 1,
       "Recipient": "Vitaly",
       "Sender": "Artur",
-      "Heading": "Test",
+      "Header": "Test",
       "MessageBody": "Test body",
       "IsSend": false,
       "NumberOfAttemptToSent": 1
+    },
+    //{
+    //  "TypeNotification": 0,
+    //  "Recipient": "Nastya@gmail.com",
+    //  "Sender": "Artur",
+    //  "Header": "Test",
+    //  "MessageBody": "Test body",
+    //  "IsSend": false,
+    //  "DateTimeCreate": "2021-11-03T11:50:14.666Z",
+    //  "NumberOfAttemptToSent": 0
+    //},
+    //{
+    //  "TypeNotification": 0,
+    //  "Recipient": "Vitaly@gmail.com",
+    //  "Sender": "Artur",
+    //  "Header": "Test",
+    //  "MessageBody": "Test body",
+    //  "IsSend": false,
+    //  "DateTimeCreate": "2021-11-03T11:50:14.666Z",
+    //  "NumberOfAttemptToSent": 1
+    //},
+    //{
+    //  "TypeNotification": 0,
+    //  "Recipient": "Taya@gmail.com",
+    //  "Sender": "Artur",
+    //  "Header": "Test",
+    //  "MessageBody": "Test body",
+    //  "IsSend": false,
+    //  "DateTimeCreate": "2021-11-03T11:50:14.666Z",
+    //  "NumberOfAttemptToSent": 5
+    //},
+    {
+      "TypeNotification": 0,
+      "Recipient": "email@gmail.com",
+      "Sender": "Artur",
+      "Header": "Test",
+      "MessageBody": "Test body",
+      "IsSend": false,
+      "DateTimeCreate": "2021-11-03T11:50:14.666Z",
+      "NumberOfAttemptToSent": 5
     }
   ]
   

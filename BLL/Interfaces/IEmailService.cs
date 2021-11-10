@@ -7,6 +7,7 @@ namespace BLL.Interfaces
 {
     public interface IEmailService
     {
-        Task Send(string From, string to, string heading, string body);
+        Task SendAsync(string to, string heading, string body);
+        void Send(string to, string heading, string body);
     }
 }

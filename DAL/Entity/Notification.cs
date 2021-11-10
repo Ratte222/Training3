@@ -10,7 +10,7 @@ namespace DAL.Entity
         public TypeNotification TypeNotification { get; set; }
         public string Recipient { get; set; }
         public string Sender { get; set; }
-        public string Heading { get; set; }
+        public string Header { get; set; }
         public string MessageBody { get; set; }
         public bool IsSend { get; set; }
         public DateTime DateTimeCreate { get; set; }
