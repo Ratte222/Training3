@@ -1,10 +1,17 @@
 ﻿using AuxiliaryLib.BaseBackgroundService;
+using BLL.Helpers;
 using BLL.Interfaces;
 using DAL.EF;
 using DAL.Entity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,8 +28,10 @@ namespace BLL.Services
     {
         private QueueSystemDbContext _context;
         private IEmailService _emailService;
+        private INotificationRepository _notificationRepository;
         private readonly IServiceProvider _services;
         private readonly ILogger<NotificationServiceBackground> _logger;
+        
         public NotificationServiceBackground(IServiceProvider services,
             ILogger<NotificationServiceBackground> logger)
         {
@@ -31,36 +40,90 @@ namespace BLL.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-            var scope = _services.CreateScope();
-            _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-            _context = scope.ServiceProvider.GetRequiredService<QueueSystemDbContext>();
-            //var builder = new ConfigurationBuilder().AddJsonFile("InitNotificationData.json");
-            //var configuration = 
-            //var _notifications = configuration.GetSection("Notifications").Get<List<Notification>>();
-            //DbInitializer.Initialize(_context, _notifications);
-            while (!stoppingToken.IsCancellationRequested)
+            long lastId = 0;
+            try
             {
-                var notifications = _context.Notifications.Where(i=>i.IsSend == false).ToList();
-                Parallel.ForEach(notifications, notification =>
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                var scope = _services.CreateScope();
+                _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                _context = scope.ServiceProvider.GetRequiredService<QueueSystemDbContext>();
+                _notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+
+                var temp = _notificationRepository.Find(Builders<Notification>.Filter.Eq(nf => nf.IsSend, false));
+                _context.Notifications.AddRange(temp);
+                lastId = (_context.Notifications.Count() > 0) ? _context.Notifications.Last().Id : 0;
+                await _context.SaveChangesAsync();
+                InitData(_context);
+                
+                
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical(ex, "The notification service failed to initialize");
+                return;
+            }
+            
+            while (true)
+            {
+                try
                 {
-                    switch (notification.TypeNotification)
+                    var notifications = _context.Notifications//.AsNoTracking()
+                        .Where(i => i.IsSend == false)
+                        .ToList();
+                    Parallel.ForEach(notifications, notification =>
                     {
-                        case TypeNotification.Email:
-                            Mailing(notification);
-                            break;
-                    };
-                });
-                //foreach(var notification in notifications)
-                //{
-                //    switch (notification.TypeNotification)
-                //    {
-                //        case TypeNotification.Email:
-                //            Mailing(notification);
-                //            break;
-                //    };
-                //}
+                        switch (notification.TypeNotification)
+                        {
+                            case TypeNotification.Email:
+                                Mailing(notification);
+                                break;
+                        };
+                    });
+                    _context.Notifications.UpdateRange(notifications);
+                    await _context.SaveChangesAsync();
+                    //foreach(var notification in notifications)
+                    //{
+                    //    switch (notification.TypeNotification)
+                    //    {
+                    //        case TypeNotification.Email:
+                    //            Mailing(notification);
+                    //            break;
+                    //    };
+                    //}
+                    if (lastId < _context.Notifications.AsNoTracking().Last().Id)
+                    {
+                        var notifications_ = _context.Notifications.AsNoTracking().Where(n => n.Id > lastId)
+                            .OrderBy(i=>i.Id).AsEnumerable();                        
+                        await _notificationRepository.AddRangeAsync(notifications_);
+                        lastId = notifications_.Last().Id;
+                    }
+                    var temp2 = _context.Notifications.AsNoTracking().Where(i => i.IsSend == true).ToList();
+                    await _notificationRepository.ReplaceManyByIdAsync(temp2);                    
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogWarning(ex, "Problems sending notifications");
+                }
                 await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
+                if (stoppingToken.IsCancellationRequested)
+                    break;
+            }
+        }
+
+        private void InitData(QueueSystemDbContext context)
+        {
+            string fileName = "InitNotificationData.json";
+            if(File.Exists(fileName) && !context.Notifications.Any())
+            {
+                string content = "";
+                using(StreamReader sr = new StreamReader(fileName))
+                {
+                    content = sr.ReadToEnd();
+                }
+                JToken parsedJson = JObject.Parse(content)["Notifications"];
+                List<Notification> notifications = parsedJson.ToObject<List<Notification>>();
+                context.Notifications.AddRange(notifications);
+                _context.SaveChanges();
             }
         }
 
@@ -89,6 +152,7 @@ namespace BLL.Services
                 notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
                 notification.NumberOfAttemptToSent++;
             }
+            //_context.Notifications.Update(notification);
         }
         private async Task SendTelegram(Notification notification)
         {

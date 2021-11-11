@@ -27,6 +27,7 @@ namespace BLL.Services
                 throw new ArgumentNullException($"{nameof(header)} is null or empty");
             if (string.IsNullOrEmpty(body))
                 throw new ArgumentNullException($"{nameof(body)} is null or empty");
+            return;
             try
             {
                 //email fluent

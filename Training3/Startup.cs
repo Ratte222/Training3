@@ -26,6 +26,7 @@ using System.IO.Compression;
 using DAL.Entity;
 using System.Net.Mail;
 using System.Net;
+using BLL.Helpers;
 
 namespace Training3
 {
@@ -76,6 +77,8 @@ namespace Training3
             //services.Configure<SmtpConfig>(mailAddresConfigSection);
             services.AddSingleton<IEmailConfiguration>(Configuration.GetSection("EmailConfiguration")
                 .Get<EmailConfiguration>());
+            services.AddSingleton<MongoDBSettings>(Configuration.GetSection("MongoDBSettings")
+                .Get<MongoDBSettings>());
             var smtpConfig = mailAddresConfigSection.Get<EmailConfiguration>();
             #endregion
 
@@ -139,6 +142,7 @@ namespace Training3
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             services.AddHostedService<NotificationServiceBackground>();
         }
@@ -151,8 +155,8 @@ namespace Training3
             DbInitializer.Initialize(applicationContext, 
                 Configuration.GetSection("Categories").Get<List<Category>>(),
                 Configuration.GetSection("Expenses").Get<List<Expense>>());
-            var notifications = Configuration.GetSection("Notifications").Get<List<Notification>>();
-            DbInitializer.Initialize(queueSystemDbContext, notifications);
+            //var notifications = Configuration.GetSection("Notifications").Get<List<Notification>>();
+            //DbInitializer.Initialize(queueSystemDbContext, notifications);
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
