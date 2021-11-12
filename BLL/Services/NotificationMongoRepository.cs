@@ -26,7 +26,7 @@ namespace BLL.Services
         public async Task AddRangeAsync(IEnumerable<Notification> notifications)
         {
             //await _notificationCollection.InsertOneAsync(notifications.First());
-            await _notificationCollection.InsertManyAsync(notifications);            
+            await _notificationCollection.InsertManyAsync(notifications);   
             //var listWrites = new List<WriteModel<Notification>>();
             //foreach(var notification in notifications)
             //{

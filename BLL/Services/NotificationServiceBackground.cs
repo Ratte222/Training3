@@ -42,14 +42,16 @@ namespace BLL.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             long lastId = 0;
+            IServiceScope scope = null;
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-                var scope = _services.CreateScope();
+                scope = _services.CreateScope();
                 _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
                 //_context = scope.ServiceProvider.GetRequiredService<QueueSystemDbContext>();
                 _notificationMongoRepository = scope.ServiceProvider.GetRequiredService<INotificationMongoRepository>();
                 _notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                
 
                 //var temp = _notificationMongoRepository.Find(Builders<Notification>.Filter.Eq(nf => nf.IsSend, false));
                 var initNotificationsFromMongo = _notificationMongoRepository.GetQueryable().AsEnumerable();
@@ -83,8 +85,6 @@ namespace BLL.Services
                         };
                     });
                     await _notificationService.UpdateRangeAsync(notifications);
-                    //_context.Notifications.UpdateRange(notifications);
-                    //await _context.SaveChangesAsync();
                     
                     //foreach(var notification in notifications)
                     //{
@@ -114,6 +114,7 @@ namespace BLL.Services
                 if (stoppingToken.IsCancellationRequested)
                     break;
             }
+            scope?.Dispose();
         }
 
         private void InitDataFromJson()
@@ -128,6 +129,7 @@ namespace BLL.Services
                 }
                 JToken parsedJson = JObject.Parse(content)["Notifications"];
                 List<Notification> notifications = parsedJson.ToObject<List<Notification>>();
+                notifications.ForEach(n => n.DateTimeCreate = DateTime.UtcNow);
                 _notificationService.CreateRange(notifications);
             }
         }

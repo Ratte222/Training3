@@ -31,5 +31,11 @@ namespace Training3.Controllers
             _notificationService.Create(notification);
             return Created("Default", notification);
         }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
