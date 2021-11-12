@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
-    public interface INotificationRepository
+    public interface INotificationMongoRepository
     {
         IQueryable<Notification> GetQueryable();
         IEnumerable<Notification> Find(FilterDefinition<Notification> filterDefinition);

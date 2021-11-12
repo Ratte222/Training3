@@ -12,50 +12,52 @@ using System.Threading.Tasks;
 
 namespace BLL.Services.BaseService
 {
-    public class BaseService<T> : IBaseService<T> where T : BaseEntity<int>//, IDisposable
+    public class BaseService<TModel, TContext> : IBaseService<TModel> 
+        where TModel : BaseEntity<int>//, IDisposable
+        where TContext : DbContext
     {
-        protected AppDBContext _context;
-        public BaseService(AppDBContext appDBContext)
+        protected TContext _context;
+        public BaseService(TContext appDBContext)
         {
             _context = appDBContext;
         }
 
-        public virtual IQueryable<T> GetAll_Queryable()
+        public virtual IQueryable<TModel> GetAll_Queryable()
         {
-            return _context.Set<T>().AsNoTracking();
+            return _context.Set<TModel>().AsNoTracking();
         }
 
-        public virtual IQueryable<T> GetAll()
+        public virtual IQueryable<TModel> GetAll()
         {
-            return _context.Set<T>().AsNoTracking();
+            return _context.Set<TModel>();
         }
 
-        public virtual IEnumerable<T> GetAll_Enumerable()
+        public virtual IEnumerable<TModel> GetAll_Enumerable()
         {
-            return _context.Set<T>().AsNoTracking().AsEnumerable();
+            return _context.Set<TModel>().AsNoTracking().AsEnumerable();
         }
 
-        public virtual T Get(Func<T, bool> func)
+        public virtual TModel Get(Func<TModel, bool> func)
         {
-            return _context.Set<T>().FirstOrDefault(func);
+            return _context.Set<TModel>().FirstOrDefault(func);
         }
 
-        public virtual async Task<T> GetAsync(Expression<Func<T, bool>> func)
+        public virtual async Task<TModel> GetAsync(Expression<Func<TModel, bool>> func)
         {
-            return await _context.Set<T>().FirstOrDefaultAsync(func);
+            return await _context.Set<TModel>().FirstOrDefaultAsync(func);
         }
 
-        public virtual T Create(T model)
+        public virtual TModel Create(TModel model)
         {
-            var result = _context.Set<T>().Add(model);
+            var result = _context.Set<TModel>().Add(model);
             _context.SaveChanges();
             model.Id = result.Entity.Id;
             return model;
         }
 
-        public virtual async Task CreateRangeAsync(IEnumerable<T> items)
+        public virtual async Task CreateRangeAsync(IEnumerable<TModel> items)
         {
-            await _context.Set<T>().AddRangeAsync(items);
+            await _context.Set<TModel>().AddRangeAsync(items);
             await _context.SaveChangesAsync();
         }
 
@@ -63,21 +65,21 @@ namespace BLL.Services.BaseService
         {
             return GetAll_Queryable().Count(x => x.Id == id) > 0;
         }
-        public virtual void CreateRange(IEnumerable<T> items)
+        public virtual void CreateRange(IEnumerable<TModel> items)
         {
-            _context.Set<T>().AddRange(items);
+            _context.Set<TModel>().AddRange(items);
             _context.SaveChanges();
         }
 
-        public virtual void Update(T item)
+        public virtual void Update(TModel item)
         {
-            _context.Set<T>().Update(item);
+            _context.Set<TModel>().Update(item);
             _context.SaveChanges();
         }
 
         public virtual void Delete(int id)
         {
-            T model = _context.Set<T>().Find(id);
+            TModel model = _context.Set<TModel>().Find(id);
             _context.Entry(model).State = EntityState.Detached;
 
             if (model == null)
@@ -85,11 +87,11 @@ namespace BLL.Services.BaseService
                 return;
             }
             
-            _context.Set<T>().Remove(model);
+            _context.Set<TModel>().Remove(model);
             _context.SaveChanges();
         }
 
-        protected virtual async Task Paginate(IQueryable<T> query, PageResponse<T> pageResponse)
+        protected virtual async Task Paginate(IQueryable<TModel> query, PageResponse<TModel> pageResponse)
         {
             var totalCount = await query.CountAsync();
 
@@ -104,6 +106,22 @@ namespace BLL.Services.BaseService
             }
 
             //return pageResponse;
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<TModel> items)
+        {
+            if (items is null)
+                return;
+            _context.Set<TModel>().UpdateRange(items);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteRangeAsync(IEnumerable<TModel> items)
+        {
+            if (items is null)
+                return;
+            _context.Set<TModel>().RemoveRange(items);
+            await _context.SaveChangesAsync();
         }
 
         #region IDisposable
@@ -127,7 +145,7 @@ namespace BLL.Services.BaseService
                 _context = null;
             }
             return true;
-        }
+        }        
 
         ~BaseService()
         {

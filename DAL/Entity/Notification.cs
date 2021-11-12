@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DAL.Entity
 {
-    public class Notification:BaseEntity<long>
+    public class Notification:BaseEntity<Int32>
     {
         public TypeNotification TypeNotification { get; set; }
         public string Recipient { get; set; }

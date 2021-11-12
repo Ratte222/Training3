@@ -3,20 +3,20 @@ using BLL.Interfaces;
 using DAL.Entity;
 using MongoDB.Driver;
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class NotificationRepository : INotificationRepository
+    public class NotificationMongoRepository : INotificationMongoRepository
     {
         //https://dev.to/mpetrinidev/a-guide-to-bulk-write-operations-in-mongodb-with-c-51fk
         private readonly MongoDBSettings _mongoDBSettings;
         private readonly IMongoCollection<Notification> _notificationCollection;
 
-        public NotificationRepository(MongoDBSettings mongoDBSettings)
+        public NotificationMongoRepository(MongoDBSettings mongoDBSettings)
         {
             _mongoDBSettings = mongoDBSettings;
             var client = new MongoClient(mongoDBSettings.ConnectionString);
@@ -25,8 +25,8 @@ namespace BLL.Services
         }
         public async Task AddRangeAsync(IEnumerable<Notification> notifications)
         {
-            await _notificationCollection.InsertOneAsync(notifications.First());
-            //await _notificationCollection.InsertManyAsync(notifications);            
+            //await _notificationCollection.InsertOneAsync(notifications.First());
+            await _notificationCollection.InsertManyAsync(notifications);            
             //var listWrites = new List<WriteModel<Notification>>();
             //foreach(var notification in notifications)
             //{

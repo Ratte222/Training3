@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Interfaces.Base
 {
-    public interface IBaseService<T> /*: IDisposable */where T : BaseEntity<int> 
+    public interface IBaseService<T> /*: IDisposable */where T : class
     {
         IEnumerable<T> GetAll_Enumerable();
         IQueryable<T> GetAll_Queryable();
@@ -19,7 +19,9 @@ namespace BLL.Interfaces.Base
         Task CreateRangeAsync(IEnumerable<T> items);
         void CreateRange(IEnumerable<T> items);
         void Update(T item);
+        Task UpdateRangeAsync(IEnumerable<T> items);
         void Delete(int id);
+        Task DeleteRangeAsync(IEnumerable<T> items);
         bool IsExists(int id);
     }
 }

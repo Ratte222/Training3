@@ -1,6 +1,7 @@
 ﻿using AuxiliaryLib.Helpers;
 using BLL.DTO.Category;
 using BLL.DTO.Expense;
+using BLL.DTO.Notification;
 using DAL.Entity;
 using Mapster;
 using System;
@@ -30,6 +31,9 @@ namespace Training3.Mapster
                 .Map(dest => dest.Is_base_income, scr => scr.IsBaseIncome)
                 .Map(dest => dest.Is_income, scr => scr.IsIncome);
             config.NewConfig<PageResponse<Category>, PageResponse<CategoryDTO>>();
+
+            config.NewConfig<CreateNotificationDTO, Notification>()
+                .Map(dest => dest.DateTimeCreate, scr => DateTime.UtcNow);
         }
     }
 }

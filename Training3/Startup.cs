@@ -142,7 +142,8 @@ namespace Training3
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddHostedService<NotificationServiceBackground>();
         }

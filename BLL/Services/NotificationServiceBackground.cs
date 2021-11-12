@@ -26,9 +26,10 @@ namespace BLL.Services
     //https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/exception-handling-task-parallel-library
     public class NotificationServiceBackground : BackgroundService
     {
-        private QueueSystemDbContext _context;
+        //private QueueSystemDbContext _context;
         private IEmailService _emailService;
-        private INotificationRepository _notificationRepository;
+        private INotificationMongoRepository _notificationMongoRepository;
+        private INotificationService _notificationService;
         private readonly IServiceProvider _services;
         private readonly ILogger<NotificationServiceBackground> _logger;
         
@@ -46,14 +47,16 @@ namespace BLL.Services
                 await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
                 var scope = _services.CreateScope();
                 _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-                _context = scope.ServiceProvider.GetRequiredService<QueueSystemDbContext>();
-                _notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+                //_context = scope.ServiceProvider.GetRequiredService<QueueSystemDbContext>();
+                _notificationMongoRepository = scope.ServiceProvider.GetRequiredService<INotificationMongoRepository>();
+                _notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-                var temp = _notificationRepository.Find(Builders<Notification>.Filter.Eq(nf => nf.IsSend, false));
-                _context.Notifications.AddRange(temp);
-                lastId = (_context.Notifications.Count() > 0) ? _context.Notifications.Last().Id : 0;
-                await _context.SaveChangesAsync();
-                InitData(_context);
+                //var temp = _notificationMongoRepository.Find(Builders<Notification>.Filter.Eq(nf => nf.IsSend, false));
+                var initNotificationsFromMongo = _notificationMongoRepository.GetQueryable().AsEnumerable();
+                await _notificationService.CreateRangeAsync(initNotificationsFromMongo);
+                lastId = (_notificationService.GetAll_Queryable().Count() > 0) ? 
+                    _notificationService.GetAll_Queryable().Last().Id : 0;
+                InitDataFromJson();
                 
                 
             }
@@ -67,9 +70,9 @@ namespace BLL.Services
             {
                 try
                 {
-                    var notifications = _context.Notifications//.AsNoTracking()
-                        .Where(i => i.IsSend == false)
-                        .ToList();
+                    var notifications = _notificationService.GetAll()//.AsNoTracking()
+                        .Where(i => i.IsSend == false);
+                        //.ToList();
                     Parallel.ForEach(notifications, notification =>
                     {
                         switch (notification.TypeNotification)
@@ -79,8 +82,10 @@ namespace BLL.Services
                                 break;
                         };
                     });
-                    _context.Notifications.UpdateRange(notifications);
-                    await _context.SaveChangesAsync();
+                    await _notificationService.UpdateRangeAsync(notifications);
+                    //_context.Notifications.UpdateRange(notifications);
+                    //await _context.SaveChangesAsync();
+                    
                     //foreach(var notification in notifications)
                     //{
                     //    switch (notification.TypeNotification)
@@ -90,15 +95,16 @@ namespace BLL.Services
                     //            break;
                     //    };
                     //}
-                    if (lastId < _context.Notifications.AsNoTracking().Last().Id)
+                    if (lastId < _notificationService.GetAll_Queryable().Last().Id)
                     {
-                        var notifications_ = _context.Notifications.AsNoTracking().Where(n => n.Id > lastId)
+                        var notifications_ = _notificationService.GetAll_Queryable().Where(n => n.Id > lastId)
                             .OrderBy(i=>i.Id).AsEnumerable();                        
-                        await _notificationRepository.AddRangeAsync(notifications_);
+                        await _notificationMongoRepository.AddRangeAsync(notifications_);
                         lastId = notifications_.Last().Id;
                     }
-                    var temp2 = _context.Notifications.AsNoTracking().Where(i => i.IsSend == true).ToList();
-                    await _notificationRepository.ReplaceManyByIdAsync(temp2);                    
+                    var sent_notifications = notifications.Where(i => i.IsSend == true).AsEnumerable();                    
+                    await _notificationMongoRepository.ReplaceManyByIdAsync(sent_notifications);
+                    //await _notificationService.DeleteRangeAsync(temp2);
                 }
                 catch(Exception ex)
                 {
@@ -110,10 +116,10 @@ namespace BLL.Services
             }
         }
 
-        private void InitData(QueueSystemDbContext context)
+        private void InitDataFromJson()
         {
             string fileName = "InitNotificationData.json";
-            if(File.Exists(fileName) && !context.Notifications.Any())
+            if(File.Exists(fileName) && !_notificationService.GetAll_Queryable().Any())
             {
                 string content = "";
                 using(StreamReader sr = new StreamReader(fileName))
@@ -122,8 +128,7 @@ namespace BLL.Services
                 }
                 JToken parsedJson = JObject.Parse(content)["Notifications"];
                 List<Notification> notifications = parsedJson.ToObject<List<Notification>>();
-                context.Notifications.AddRange(notifications);
-                _context.SaveChanges();
+                _notificationService.CreateRange(notifications);
             }
         }
 

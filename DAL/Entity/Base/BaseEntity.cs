@@ -10,7 +10,7 @@ namespace DAL.Entity.Base
     {
         //https://www.thecodebuzz.com/serializer-objectserializer-is-not-configurable-bsonrepresentationattribute/
         [BsonId]
-        [BsonRepresentation(BsonType.Int64)]
+        [BsonRepresentation(BsonType.Int32)]
         public T Id { get; set; }
     }
 }
