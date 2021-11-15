@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NotificationService.Services;
 using Serilog;
 using System;
+using System.Threading;
 
 namespace NotificationService
 {
@@ -12,14 +13,20 @@ namespace NotificationService
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
                 .WriteTo.Console()
                 .CreateLogger();
             Startup.ConfigureService(ref serviceProvider);
             var logger = serviceProvider.GetService<ILogger<Program>>();
             try
             {
+                var notificationServiceSender = serviceProvider.GetService<NotificationServiceSender>();
+                notificationServiceSender.Execute();
                 PipeServerService pipeServerService = serviceProvider.GetService<PipeServerService>();
                 pipeServerService.StartService();
+                Console.WriteLine("Start read key");
+                Console.ReadKey();
+                notificationServiceSender.Stop();
             }
             catch(Exception ex)
             {

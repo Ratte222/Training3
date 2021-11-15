@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BLL.Interfaces
 {
-    public interface INotificationService:IBaseService<Notification>
+    public interface INotificationService:IBaseService<Notification, string>
     {
 
     }

@@ -41,7 +41,7 @@ namespace BLL.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            long lastId = 0;
+            //long lastId = 0;
             IServiceScope scope = null;
             try
             {
@@ -56,8 +56,8 @@ namespace BLL.Services
                 //var temp = _notificationMongoRepository.Find(Builders<Notification>.Filter.Eq(nf => nf.IsSend, false));
                 var initNotificationsFromMongo = _notificationMongoRepository.GetQueryable().AsEnumerable();
                 await _notificationService.CreateRangeAsync(initNotificationsFromMongo);
-                lastId = (_notificationService.GetAll_Queryable().Count() > 0) ? 
-                    _notificationService.GetAll_Queryable().Last().Id : 0;
+                //lastId = (_notificationService.GetAll_Queryable().Count() > 0) ? 
+                //    _notificationService.GetAll_Queryable().Last().Id : 0;
                 InitDataFromJson();
                 
                 
@@ -95,13 +95,14 @@ namespace BLL.Services
                     //            break;
                     //    };
                     //}
-                    if (lastId < _notificationService.GetAll_Queryable().Last().Id)
-                    {
-                        var notifications_ = _notificationService.GetAll_Queryable().Where(n => n.Id > lastId)
-                            .OrderBy(i=>i.Id).AsEnumerable();                        
-                        await _notificationMongoRepository.AddRangeAsync(notifications_);
-                        lastId = notifications_.Last().Id;
-                    }
+
+                    //if (lastId < _notificationService.GetAll_Queryable().Last().Id)
+                    //{
+                    //    var notifications_ = _notificationService.GetAll_Queryable().Where(n => n.Id > lastId)
+                    //        .OrderBy(i=>i.Id).AsEnumerable();                        
+                    //    await _notificationMongoRepository.AddRangeAsync(notifications_);
+                    //    lastId = notifications_.Last().Id;
+                    //}
                     var sent_notifications = notifications.Where(i => i.IsSend == true).AsEnumerable();                    
                     await _notificationMongoRepository.ReplaceManyByIdAsync(sent_notifications);
                     //await _notificationService.DeleteRangeAsync(temp2);

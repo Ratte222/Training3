@@ -8,7 +8,7 @@ using System.Text;
 
 namespace BLL.Services
 {
-    public class NotificationService:BaseService<Notification, QueueSystemDbContext>, INotificationService
+    public class NotificationService:BaseService<Notification, QueueSystemDbContext, string>, INotificationService
     {
         public NotificationService(QueueSystemDbContext context): base(context)
         { }

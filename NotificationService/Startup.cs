@@ -24,19 +24,16 @@ namespace NotificationService
             var services = new ServiceCollection();
             services.AddLogging(configure => configure.AddSerilog());
             #region DatabaseConfiguration
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"));
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
+                ServiceLifetime.Transient);
             #endregion
+            #region Configuration from appsettings
             if (!File.Exists(AppSettingsFileName))
             {
                 throw new Exception($"file {AppSettingsFileName} does not exist");
             }
             string content = File.ReadAllText(AppSettingsFileName);
 
-            //using (StreamReader sr = new StreamReader(AppSettingsFileName))
-            //{
-            //    content = sr.ReadToEnd();
-            //}
-            #region Configuration from appsettings
             JToken parsedJson = JObject.Parse(content)["EmailConfiguration"];
             EmailConfiguration emailConfiguration = parsedJson.ToObject<EmailConfiguration>();
             services.AddSingleton<IEmailConfiguration>(emailConfiguration);
@@ -62,6 +59,7 @@ namespace NotificationService
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, BLL.Services.NotificationService>();
             services.AddTransient<PipeServerService>();
+            services.AddScoped<NotificationServiceSender>();
             servicesProvider = services.BuildServiceProvider();
             
         }

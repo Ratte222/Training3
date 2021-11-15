@@ -1,5 +1,6 @@
 ﻿using BLL.DTO.Notification;
 using BLL.Interfaces;
+using BLL.Services;
 using DAL.Entity;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
@@ -17,10 +18,13 @@ namespace Training3.Controllers
     {
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
+        private readonly NamedPipeClient _namedPipeClient;
 
-        public TestNotificationController(INotificationService notificationService, IMapper mapper)
+        public TestNotificationController(INotificationService notificationService, IMapper mapper,
+            NamedPipeClient namedPipeClient)
         {
-            (_notificationService, _mapper) = (notificationService, mapper);
+            (_notificationService, _mapper, _namedPipeClient) = 
+                (notificationService, mapper, namedPipeClient);
         }
 
         [HttpPost]
@@ -28,8 +32,11 @@ namespace Training3.Controllers
         {
             Notification notification = _mapper.Map<Notification>(createNotificationDTO);
             notification.DateTimeCreate = DateTime.UtcNow;//Mapster does not mapped this fild
-            _notificationService.Create(notification);
-            return Created("Default", notification);
+            //_notificationService.Create(notification);
+            if (_namedPipeClient.SendNotification(notification))
+                return Created("Default", notification);
+            else
+                return this.StatusCode(500);
         }
 
         [HttpGet]

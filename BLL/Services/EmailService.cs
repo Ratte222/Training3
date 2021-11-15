@@ -1,6 +1,7 @@
 ﻿using BLL.Interfaces;
 using FluentEmail.Core;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -27,7 +28,12 @@ namespace BLL.Services
                 throw new ArgumentNullException($"{nameof(header)} is null or empty");
             if (string.IsNullOrEmpty(body))
                 throw new ArgumentNullException($"{nameof(body)} is null or empty");
+            _logger.LogDebug($"Send notification to: {to}, \r\nheader: {header}, body: {body}");
+            #region Debug
+            Random random = new Random();
+            await Task.Delay(random.Next(1000));
             return;
+            #endregion
             try
             {
                 //email fluent

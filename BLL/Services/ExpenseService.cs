@@ -12,7 +12,7 @@ using BLL.Events;
 
 namespace BLL.Services
 {
-    public class ExpenseService : BaseService<Expense, AppDBContext>, IExpenseService
+    public class ExpenseService : BaseService<Expense, AppDBContext, int>, IExpenseService
     {
         private readonly ExpenseEvents _expenseEvents;
         public ExpenseService(AppDBContext appDBContext, ExpenseEvents expenseEvents) : base(appDBContext)

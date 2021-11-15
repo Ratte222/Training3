@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace BLL.Interfaces.Base
 {
-    public interface IBaseService<T> /*: IDisposable */where T : class
+    public interface IBaseService<TModel, T> /*: IDisposable */where TModel : class
     {
-        IEnumerable<T> GetAll_Enumerable();
-        IQueryable<T> GetAll_Queryable();
-        IQueryable<T> GetAll();
-        T Get(Func<T, bool> func);
-        Task<T> GetAsync(Expression<Func<T, bool>> func);
-        T Create(T item);
-        Task CreateRangeAsync(IEnumerable<T> items);
-        void CreateRange(IEnumerable<T> items);
-        void Update(T item);
-        Task UpdateRangeAsync(IEnumerable<T> items);
-        void Delete(int id);
-        Task DeleteRangeAsync(IEnumerable<T> items);
-        bool IsExists(int id);
+        IEnumerable<TModel> GetAll_Enumerable();
+        IQueryable<TModel> GetAll_Queryable();
+        IQueryable<TModel> GetAll();
+        TModel Get(Func<TModel, bool> func);
+        Task<TModel> GetAsync(Expression<Func<TModel, bool>> func);
+        TModel Create(TModel item);
+        Task CreateRangeAsync(IEnumerable<TModel> items);
+        void CreateRange(IEnumerable<TModel> items);
+        void Update(TModel item);
+        Task UpdateRangeAsync(IEnumerable<TModel> items);
+        void Delete(T id);
+        Task DeleteRangeAsync(IEnumerable<TModel> items);
+        bool IsExists(T id);
     }
 }

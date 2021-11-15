@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 
 namespace BLL.Services.BaseService
 {
-    public class BaseService<TModel, TContext> : IBaseService<TModel> 
-        where TModel : BaseEntity<int>//, IDisposable
+    public class BaseService<TModel, TContext, T> : IBaseService<TModel, T> 
+        where TModel : BaseEntity<T>//, IDisposable
         where TContext : DbContext
     {
         protected TContext _context;
@@ -61,9 +61,9 @@ namespace BLL.Services.BaseService
             await _context.SaveChangesAsync();
         }
 
-        public bool IsExists(int id)
+        public bool IsExists(T id)
         {
-            return GetAll_Queryable().Count(x => x.Id == id) > 0;
+            return GetAll_Queryable().Count(x => x.Id.Equals(id)) > 0;
         }
         public virtual void CreateRange(IEnumerable<TModel> items)
         {
@@ -77,7 +77,7 @@ namespace BLL.Services.BaseService
             _context.SaveChanges();
         }
 
-        public virtual void Delete(int id)
+        public virtual void Delete(T id)
         {
             TModel model = _context.Set<TModel>().Find(id);
             _context.Entry(model).State = EntityState.Detached;

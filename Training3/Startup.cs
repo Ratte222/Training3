@@ -144,8 +144,9 @@ namespace Training3
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddTransient<NamedPipeClient>();
 
-            services.AddHostedService<NotificationServiceBackground>();
+            //services.AddHostedService<NotificationServiceBackground>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

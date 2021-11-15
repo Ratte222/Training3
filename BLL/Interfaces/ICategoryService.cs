@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
-    public interface ICategoryService : IBaseService<Category>
+    public interface ICategoryService : IBaseService<Category, int>
     {
         public Task GetPageResponse(PageResponse<Category> pageResponse);
     }

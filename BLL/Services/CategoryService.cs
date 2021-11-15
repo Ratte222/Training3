@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class CategoryService : BaseService<Category, AppDBContext>, ICategoryService
+    public class CategoryService : BaseService<Category, AppDBContext, int>, ICategoryService
     {
         public CategoryService(AppDBContext context) : base(context) { }
 
