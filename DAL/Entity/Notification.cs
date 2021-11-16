@@ -17,6 +17,9 @@ namespace DAL.Entity
         public DateTime DateTimeCreate { get; set; }
         public DateTime? DateTimeOfTheLastAttemptToSend { get; set; }
         public int NumberOfAttemptToSent { get; set; }
+    
+        public Credentials Credentials { get; set; }
+        public Exception Exception { get; set; }
     }
 
     public enum TypeNotification

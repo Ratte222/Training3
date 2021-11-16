@@ -140,7 +140,7 @@ namespace BLL.Services
             //Task taskResult = _emailService.Send(notification.Sender,
             //    notification.Recipient, notification.Heading, notification.MessageBody);
             Task taskResult = _emailService.SendAsync(
-                notification.Recipient, notification.Header, notification.MessageBody);
+                notification.Recipient, notification.Header, notification.MessageBody, notification.Credentials);
             try//just in case
             {
                 taskResult.Wait();

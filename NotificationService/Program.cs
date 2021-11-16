@@ -21,13 +21,16 @@ namespace NotificationService
             var logger = serviceProvider.GetService<ILogger<Program>>();
             try
             {
-                var notificationServiceSender = serviceProvider.GetService<INotificationServiceSender>();
-                notificationServiceSender.Execute();
+                INotificationServiceSender notificationServiceSender = serviceProvider.GetService<INotificationServiceSender>();
+                IProblemNotificationsService problemNotificationsService = serviceProvider.GetService<IProblemNotificationsService>();
                 INamedPipeServerService pipeServerService = serviceProvider.GetService<INamedPipeServerService>();
+                notificationServiceSender.Execute();
+                problemNotificationsService.Execute();
                 pipeServerService.StartService();
                 Console.WriteLine("Start read key");
                 Console.ReadKey();
                 pipeServerService.Stop();
+                problemNotificationsService.Stop();
                 notificationServiceSender.Stop();
             }
             catch(Exception ex)

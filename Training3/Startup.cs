@@ -84,22 +84,22 @@ namespace Training3
             var smtpConfig = mailAddresConfigSection.Get<EmailConfiguration>();
             #endregion
 
-            #region FluentEmail_Smtp
-            SmtpClient smtp = new SmtpClient
-            {
-                //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
-                Host = smtpConfig.SmtpHost,
-                Port = smtpConfig.SmtpPort,
-                UseDefaultCredentials = true,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                //Enter the user name and password of your sending SMTP server here
-                Credentials = new NetworkCredential(smtpConfig.SmtpEmail, smtpConfig.SmtpPassword)
-            };
-            services
-                .AddFluentEmail(smtpConfig.SmtpEmail)
-                .AddSmtpSender(smtp); //configure host and port
-            #endregion
+            //#region FluentEmail_Smtp
+            //SmtpClient smtp = new SmtpClient
+            //{
+            //    //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
+            //    Host = smtpConfig.SmtpHost,
+            //    Port = smtpConfig.SmtpPort,
+            //    UseDefaultCredentials = true,
+            //    EnableSsl = true,
+            //    DeliveryMethod = SmtpDeliveryMethod.Network,
+            //    //Enter the user name and password of your sending SMTP server here
+            //    Credentials = new NetworkCredential(smtpConfig.SmtpEmail, smtpConfig.SmtpPassword)
+            //};
+            //services
+            //    .AddFluentEmail(smtpConfig.SmtpEmail)
+            //    .AddSmtpSender(smtp); //configure host and port
+            //#endregion
 
             #region Mapster
             var config = new TypeAdapterConfig();

@@ -17,6 +17,7 @@ namespace BLL.Services
         private readonly IEmailService _emailService;
         private readonly INotificationService _notificationService;
         private readonly INotificationSenderSettings _notificationSenderSettings;
+        
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
@@ -35,11 +36,6 @@ namespace BLL.Services
         //    _cancellationTokenSource = cancellationTokenSource;
         //    _cancellationToken = cancellationTokenSource.Token;
         //}
-
-        public void Stop()
-        {            
-            Dispose();
-        }
 
         public async Task Execute()
         {
@@ -60,7 +56,7 @@ namespace BLL.Services
                         };
                     });
                     var sent_notifications = notifications.Where(i => i.IsSend == true).AsEnumerable();
-                    await _notificationService.DeleteRangeAsync(sent_notifications);
+                    await _notificationService.DeleteRangeAsync(sent_notifications);                    
                 }
                 catch (Exception ex)
                 {
@@ -80,14 +76,14 @@ namespace BLL.Services
             //Task taskResult = _emailService.Send(notification.Sender,
             //    notification.Recipient, notification.Heading, notification.MessageBody);
             Task taskResult = _emailService.SendAsync(
-                notification.Recipient, notification.Header, notification.MessageBody);
+                notification.Recipient, notification.Header, notification.MessageBody, notification.Credentials);
             try//just in case
             {
                 taskResult.Wait();
-            }
-            catch (Exception ex)
+            }            
+            catch (Exception ex)//SmtpException, ObjectDisposedException, InvalidOperationException, ArgumentNullException
             {
-                _logger.LogWarning(ex, $"Notification id = {notification.Id}");
+                _logger.LogInformation(ex, $"Notification id = {notification.Id}");
             }
             if (taskResult.Status == TaskStatus.RanToCompletion)
             {
@@ -110,6 +106,10 @@ namespace BLL.Services
         }
 
         #region Dispose
+        public void Stop()
+        {            
+            Dispose();
+        }
         private bool isDisposed = false;
         public void Dispose()
         {

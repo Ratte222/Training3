@@ -45,27 +45,28 @@ namespace NotificationService
             services.AddSingleton<INotificationSenderSettings>(notificationSenderSettings);
             #endregion
 
-            #region FluentEmail_Smtp
-            SmtpClient smtp = new SmtpClient
-            {
-                //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
-                Host = emailConfiguration.SmtpHost,
-                Port = emailConfiguration.SmtpPort,
-                UseDefaultCredentials = true,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                //Enter the user name and password of your sending SMTP server here
-                Credentials = new NetworkCredential(emailConfiguration.SmtpEmail, emailConfiguration.SmtpPassword)
-            };
-            services
-                .AddFluentEmail(emailConfiguration.SmtpEmail)
-                .AddSmtpSender(smtp); //configure host and port
-            #endregion
+            //#region FluentEmail_Smtp
+            //SmtpClient smtp = new SmtpClient
+            //{
+            //    //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
+            //    Host = emailConfiguration.SmtpHost,
+            //    Port = emailConfiguration.SmtpPort,
+            //    UseDefaultCredentials = true,
+            //    EnableSsl = true,
+            //    DeliveryMethod = SmtpDeliveryMethod.Network,
+            //    //Enter the user name and password of your sending SMTP server here
+            //    Credentials = new NetworkCredential(emailConfiguration.SmtpEmail, emailConfiguration.SmtpPassword)
+            //};
+            //services
+            //    .AddFluentEmail(emailConfiguration.SmtpEmail)
+            //    .AddSmtpSender(smtp); //configure host and port
+            //#endregion
             
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, BLL.Services.NotificationService>();
             services.AddTransient<INamedPipeServerService, NamedPipeServerService>();
             services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
+            services.AddScoped<IProblemNotificationsService, ProblemNotificationsService>();
             servicesProvider = services.BuildServiceProvider();
             
         }

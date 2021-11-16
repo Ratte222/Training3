@@ -89,6 +89,7 @@ namespace BLL.Services.NamedPipe
                 //    filename, threadId, pipeServer.GetImpersonationUserName());
                 Notification notification = JsonConvert.DeserializeObject<Notification>(JsonNotification);
                 notification.Id = Guid.NewGuid().ToString();
+                notification.DateTimeCreate = DateTime.UtcNow;
                 waitHandler.WaitOne();
                 _notificationService.Create(notification);
                 waitHandler.Set();
