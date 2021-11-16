@@ -21,6 +21,7 @@ namespace BLL.Services.NamedPipe
         private readonly ILogger<NamedPipeServerService> _logger;
         private readonly INotificationService _notificationService;
 
+        private AutoResetEvent waitHandler = new AutoResetEvent(true);
         private bool serviceWork = true;
 
         public NamedPipeServerService(ILogger<NamedPipeServerService> logger, INotificationService notificationService)
@@ -88,7 +89,9 @@ namespace BLL.Services.NamedPipe
                 //    filename, threadId, pipeServer.GetImpersonationUserName());
                 Notification notification = JsonConvert.DeserializeObject<Notification>(JsonNotification);
                 notification.Id = Guid.NewGuid().ToString();
+                waitHandler.WaitOne();
                 _notificationService.Create(notification);
+                waitHandler.Set();
                 ss.WriteString("Notification received successfully");
             }
             // Catch the IOException that is raised if the pipe is broken
