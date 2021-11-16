@@ -67,6 +67,7 @@ namespace NotificationService.Services
                 if (_cancellationToken.IsCancellationRequested)
                     break;
             }
+            _logger.LogWarning("NotificationServiceSender stoped");
         }
 
         private void Mailing(Notification notification)
@@ -90,7 +91,7 @@ namespace NotificationService.Services
                 waitHandler.WaitOne();
                 notification.IsSend = true;
                 notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
-                waitHandler.Reset();
+                waitHandler.Set();
             }
             else
             {
@@ -98,7 +99,7 @@ namespace NotificationService.Services
                 _logger.LogWarning(taskResult.Exception, $"Notification id = {notification.Id}");
                 notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
                 notification.NumberOfAttemptToSent++;
-                waitHandler.Reset();
+                waitHandler.Set();
             }
             //_context.Notifications.Update(notification);
         }
