@@ -27,6 +27,8 @@ using DAL.Entity;
 using System.Net.Mail;
 using System.Net;
 using BLL.Helpers;
+using BLL.Interfaces.NamedPipe;
+using BLL.Services.NamedPipe;
 
 namespace Training3
 {
@@ -144,7 +146,7 @@ namespace Training3
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddTransient<NamedPipeClient>();
+            services.AddTransient<INamedPipeClientService, NamedPipeClientService>();
 
             //services.AddHostedService<NotificationServiceBackground>();
         }

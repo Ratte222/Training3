@@ -31,8 +31,11 @@ namespace BLL.Services
             _logger.LogDebug($"Send notification to: {to}, \r\nheader: {header}, body: {body}");
             #region Debug
             Random random = new Random();
-            await Task.Delay(random.Next(1000));
-            return;
+            await Task.Delay(random.Next(500, 1000));
+            if (random.Next(0, 9) <= 7)//20 percent failed send
+                return;
+            else
+                throw new Exception();
             #endregion
             try
             {

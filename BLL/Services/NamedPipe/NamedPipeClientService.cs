@@ -1,4 +1,5 @@
-﻿using DAL.Entity;
+﻿using BLL.Interfaces.NamedPipe;
+using DAL.Entity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -10,14 +11,14 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 
-namespace BLL.Services
+namespace BLL.Services.NamedPipe
 {
-    public class NamedPipeClient
+    public class NamedPipeClientService:INamedPipeClientService
     {
-        private readonly ILogger<NamedPipeClient> _logger;
-        private string pipeName = "notificationServiceAddNotificationToQueue";
+        private readonly ILogger<NamedPipeClientService> _logger;
+        private readonly string pipeName = "notificationServiceAddNotificationToQueue";
 
-        public NamedPipeClient(ILogger<NamedPipeClient> logger)
+        public NamedPipeClientService(ILogger<NamedPipeClientService> logger)
         {
             (_logger) = (logger);
         }
@@ -66,47 +67,6 @@ namespace BLL.Services
             return result;
         }
     }
-
-    // Defines the data protocol for reading and writing strings on our stream.
-    public class StreamString
-    {
-        private Stream ioStream;
-        private UnicodeEncoding streamEncoding;
-
-        public StreamString(Stream ioStream)
-        {
-            this.ioStream = ioStream;
-            streamEncoding = new UnicodeEncoding();
-        }
-
-        public string ReadString()
-        {
-            int len;
-            len = ioStream.ReadByte() * 256;
-            len += ioStream.ReadByte();
-            var inBuffer = new byte[len];
-            ioStream.Read(inBuffer, 0, len);
-
-            return streamEncoding.GetString(inBuffer);
-        }
-
-        public int WriteString(string outString)
-        {
-            byte[] outBuffer = streamEncoding.GetBytes(outString);
-            int len = outBuffer.Length;
-            if (len > UInt16.MaxValue)
-            {
-                len = (int)UInt16.MaxValue;
-            }
-            ioStream.WriteByte((byte)(len / 256));
-            ioStream.WriteByte((byte)(len & 255));
-            ioStream.Write(outBuffer, 0, len);
-            ioStream.Flush();
-
-            return outBuffer.Length + 2;
-        }
-    }
-
 }
 
 

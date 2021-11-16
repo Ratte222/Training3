@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using BLL.Interfaces;
+using BLL.Interfaces.NamedPipe;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NotificationService.Services;
 using Serilog;
 using System;
 using System.Threading;
@@ -20,12 +21,13 @@ namespace NotificationService
             var logger = serviceProvider.GetService<ILogger<Program>>();
             try
             {
-                var notificationServiceSender = serviceProvider.GetService<NotificationServiceSender>();
+                var notificationServiceSender = serviceProvider.GetService<INotificationServiceSender>();
                 notificationServiceSender.Execute();
-                PipeServerService pipeServerService = serviceProvider.GetService<PipeServerService>();
+                INamedPipeServerService pipeServerService = serviceProvider.GetService<INamedPipeServerService>();
                 pipeServerService.StartService();
                 Console.WriteLine("Start read key");
                 Console.ReadKey();
+                pipeServerService.Stop();
                 notificationServiceSender.Stop();
             }
             catch(Exception ex)

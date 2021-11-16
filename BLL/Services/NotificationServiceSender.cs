@@ -9,20 +9,23 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NotificationService.Services
+namespace BLL.Services
 {
-    public class NotificationServiceSender:IDisposable
+    public class NotificationServiceSender: INotificationServiceSender
     {
         private readonly ILogger<NotificationServiceSender> _logger;
         private readonly IEmailService _emailService;
         private readonly INotificationService _notificationService;
+        private readonly INotificationSenderSettings _notificationSenderSettings;
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
+
         public NotificationServiceSender(ILogger<NotificationServiceSender> logger, IEmailService emailService,
-            INotificationService notificationService)
+            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings)
         {
-            (_logger, _emailService, _notificationService) = (logger, emailService, notificationService);
+            (_logger, _emailService, _notificationService, _notificationSenderSettings) = 
+                (logger, emailService, notificationService, notificationSenderSettings);
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
         }
@@ -63,7 +66,7 @@ namespace NotificationService.Services
                 {
                     _logger.LogWarning(ex, "Problems sending notifications");
                 }
-                await Task.Delay(TimeSpan.FromSeconds(20), _cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
                 if (_cancellationToken.IsCancellationRequested)
                     break;
             }
@@ -89,6 +92,7 @@ namespace NotificationService.Services
             if (taskResult.Status == TaskStatus.RanToCompletion)
             {
                 waitHandler.WaitOne();
+                _logger.LogDebug($"Notification sent, id = {notification.Id}");
                 notification.IsSend = true;
                 notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
                 waitHandler.Set();
@@ -96,7 +100,8 @@ namespace NotificationService.Services
             else
             {
                 waitHandler.WaitOne();
-                _logger.LogWarning(taskResult.Exception, $"Notification id = {notification.Id}");
+                _logger.LogDebug($"Notification not sent, id = {notification.Id}");
+                _logger.LogInformation(taskResult.Exception, $"Notification id = {notification.Id}");
                 notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
                 notification.NumberOfAttemptToSent++;
                 waitHandler.Set();

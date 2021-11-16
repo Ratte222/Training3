@@ -1,5 +1,6 @@
 ﻿using BLL.DTO.Notification;
 using BLL.Interfaces;
+using BLL.Interfaces.NamedPipe;
 using BLL.Services;
 using DAL.Entity;
 using MapsterMapper;
@@ -18,10 +19,10 @@ namespace Training3.Controllers
     {
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
-        private readonly NamedPipeClient _namedPipeClient;
+        private readonly INamedPipeClientService _namedPipeClient;
 
         public TestNotificationController(INotificationService notificationService, IMapper mapper,
-            NamedPipeClient namedPipeClient)
+            INamedPipeClientService namedPipeClient)
         {
             (_notificationService, _mapper, _namedPipeClient) = 
                 (notificationService, mapper, namedPipeClient);

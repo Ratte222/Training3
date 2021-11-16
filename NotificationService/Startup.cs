@@ -11,7 +11,9 @@ using BLL.Services;
 using BLL.Interfaces;
 using System.Net.Mail;
 using System.Net;
-using NotificationService.Services;
+using BLL.Interfaces.NamedPipe;
+using BLL.Services.NamedPipe;
+using BLL.Helpers;
 
 namespace NotificationService
 {
@@ -37,6 +39,10 @@ namespace NotificationService
             JToken parsedJson = JObject.Parse(content)["EmailConfiguration"];
             EmailConfiguration emailConfiguration = parsedJson.ToObject<EmailConfiguration>();
             services.AddSingleton<IEmailConfiguration>(emailConfiguration);
+
+            parsedJson = JObject.Parse(content)["NotificationSenderSettings"];
+            NotificationSenderSettings notificationSenderSettings = parsedJson.ToObject<NotificationSenderSettings>();
+            services.AddSingleton<INotificationSenderSettings>(notificationSenderSettings);
             #endregion
 
             #region FluentEmail_Smtp
@@ -58,8 +64,8 @@ namespace NotificationService
             
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, BLL.Services.NotificationService>();
-            services.AddTransient<PipeServerService>();
-            services.AddScoped<NotificationServiceSender>();
+            services.AddTransient<INamedPipeServerService, NamedPipeServerService>();
+            services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
             servicesProvider = services.BuildServiceProvider();
             
         }
