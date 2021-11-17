@@ -14,6 +14,7 @@ using System.Net;
 using BLL.Interfaces.NamedPipe;
 using BLL.Services.NamedPipe;
 using BLL.Helpers;
+using MongoDB.Bson;
 
 namespace NotificationService
 {
@@ -35,7 +36,7 @@ namespace NotificationService
                 throw new Exception($"file {AppSettingsFileName} does not exist");
             }
             string content = File.ReadAllText(AppSettingsFileName);
-
+            //TODO: use Microsoft.Extensions.Configuration
             JToken parsedJson = JObject.Parse(content)["EmailConfiguration"];
             EmailConfiguration emailConfiguration = parsedJson.ToObject<EmailConfiguration>();
             services.AddSingleton<IEmailConfiguration>(emailConfiguration);
@@ -43,8 +44,14 @@ namespace NotificationService
             parsedJson = JObject.Parse(content)["NotificationSenderSettings"];
             NotificationSenderSettings notificationSenderSettings = parsedJson.ToObject<NotificationSenderSettings>();
             services.AddSingleton<INotificationSenderSettings>(notificationSenderSettings);
+
+            parsedJson = JObject.Parse(content)["MongoDBSettings"];
+            MongoDBSettings mongoDBSettings = parsedJson.ToObject<MongoDBSettings>();
+            services.AddSingleton<MongoDBSettings>(mongoDBSettings);
             #endregion
 
+            //BsonDefaults.MaxSerializationDepth = 2;
+            
             //#region FluentEmail_Smtp
             //SmtpClient smtp = new SmtpClient
             //{
@@ -61,11 +68,12 @@ namespace NotificationService
             //    .AddFluentEmail(emailConfiguration.SmtpEmail)
             //    .AddSmtpSender(smtp); //configure host and port
             //#endregion
-            
+
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, BLL.Services.NotificationService>();
             services.AddTransient<INamedPipeServerService, NamedPipeServerService>();
             services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
+            services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
             services.AddScoped<IProblemNotificationsService, ProblemNotificationsService>();
             servicesProvider = services.BuildServiceProvider();
             

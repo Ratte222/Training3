@@ -5,6 +5,7 @@ using DAL.Entity;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
@@ -32,12 +33,14 @@ namespace BLL.Services
             while (true)
             {
                 try
-                {                    
+                {                  
+                    DateTime dateTime = DateTime.UtcNow;  
                     var problem_notifications = _notificationService.GetAll_Queryable()
                         .Where(i=>((i.IsSend == false)&&(i.NumberOfAttemptToSent > _notificationSenderSettings.NumberOfAttemptToSentForPushToFile)
-                        && ((DateTime.UtcNow - i.DateTimeCreate)> TimeSpan.FromMinutes(_notificationSenderSettings.TimeAfterCreateForPushToFile))&&
-                        ((DateTime.UtcNow - i.DateTimeOfTheLastAttemptToSend)<
-                        TimeSpan.FromMinutes(_notificationSenderSettings.TimeOfTheLastAttemptToSendForPushToFile)))).AsEnumerable();
+                        && ((dateTime - i.DateTimeCreate)> TimeSpan.FromMinutes(_notificationSenderSettings.TimeAfterCreateForPushToFile))
+                        && i.DateTimeOfTheLastAttemptToSend.HasValue ? ((dateTime - i.DateTimeOfTheLastAttemptToSend.Value)<
+                        TimeSpan.FromMinutes(_notificationSenderSettings.TimeOfTheLastAttemptToSendForPushToFile)) : false))
+                        .Include(i=>i.Credentials).Include(i => i.Exception).AsEnumerable();
                     if(problem_notifications.Count() > 0)
                     {
                         await _notificationMongoRepository.AddRangeAsync(problem_notifications);
@@ -47,12 +50,13 @@ namespace BLL.Services
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Problems sending notifications");
+                    break;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
                 if (_cancellationToken.IsCancellationRequested)
                     break;
             }
-            _logger.LogWarning("NotificationServiceSender stoped");
+            _logger.LogWarning($"{nameof(ProblemNotificationsService)} stoped!");
         }
 
 

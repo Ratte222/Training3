@@ -6,7 +6,7 @@ using System.Text;
 namespace BLL.Services.NamedPipe
 {
     // Defines the data protocol for reading and writing strings on our stream
-    class StreamString
+    public class StreamString
     {
         private Stream ioStream;
         private UnicodeEncoding streamEncoding;

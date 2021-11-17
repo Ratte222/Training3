@@ -1,13 +1,13 @@
-﻿using DAL.Entity.Base;
-using Newtonsoft.Json;
+﻿using DAL.Entity;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DAL.Entity
+namespace BLL.DTO.Notification
 {
-    public class Notification:BaseEntity<string>
+    public class NotificationDTO
     {
+        public string Id { get; set; }
         public TypeNotification TypeNotification { get; set; }
         public string Recipient { get; set; }
         public string Sender { get; set; }
@@ -17,20 +17,8 @@ namespace DAL.Entity
         public DateTime DateTimeCreate { get; set; }
         public DateTime? DateTimeOfTheLastAttemptToSend { get; set; }
         public int NumberOfAttemptToSent { get; set; }
-    
+
         public Credentials Credentials { get; set; }
-        public NotificationException Exception { get; set; } = new NotificationException();
-
-        public Notification()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-    }
-
-    public enum TypeNotification
-    {
-        Email = 0,
-        Telegram,
-        WhatsApp
+        public NotificationException Exception { get; set; }
     }
 }

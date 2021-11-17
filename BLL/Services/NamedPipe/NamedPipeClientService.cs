@@ -35,12 +35,11 @@ namespace BLL.Services.NamedPipe
             pipeClient.Connect();
 
             var ss = new StreamString(pipeClient);
-            // Validate the server's signature string.
             if (ss.ReadString() == "I am the one true server!")
             {
                 string jsonString = JsonConvert.SerializeObject(notification);
                 ss.WriteString(jsonString);
-                try 
+                try
                 {
                     var res = ss.ReadString();
                     if (res.Equals("Notification received successfully"))//all good
@@ -53,16 +52,17 @@ namespace BLL.Services.NamedPipe
                         _logger.LogWarning("Notification not processed by notification server");
                     }
                 }
-                catch(OverflowException ex)//most likely problems with the notification server
+                catch (OverflowException ex)//most likely problems with the notification server
                 {
                     _logger.LogWarning("Notification not processed by notification server");
                 }
-                
+
             }
             else
             {
                 _logger.LogInformation("Server could not be verified.");
             }
+
             pipeClient.Close();
             return result;
         }

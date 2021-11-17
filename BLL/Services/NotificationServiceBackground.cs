@@ -130,7 +130,8 @@ namespace BLL.Services
                 }
                 JToken parsedJson = JObject.Parse(content)["Notifications"];
                 List<Notification> notifications = parsedJson.ToObject<List<Notification>>();
-                notifications.ForEach(n => n.DateTimeCreate = DateTime.UtcNow);
+                DateTime dateTime = DateTime.UtcNow;
+                notifications.ForEach(n => n.DateTimeCreate = dateTime);
                 _notificationService.CreateRange(notifications);
             }
         }

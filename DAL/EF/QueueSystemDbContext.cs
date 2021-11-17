@@ -23,7 +23,16 @@ namespace DAL.EF
                 m.HasKey(k => k.Id);
                 m.Property(p => p.DateTimeOfTheLastAttemptToSend)
                 .HasDefaultValueSql(null);
-            });
+                m.HasOne(n => n.Credentials)
+                //.WithOne(c => c.Notification)
+                .WithOne()
+                .HasForeignKey<Credentials>(c => c.NotificationId);
+                m.HasOne(n => n.Exception)
+                //.WithOne(e => e.Notification)
+                .WithOne()
+                .HasForeignKey<NotificationException>(c => c.NotificationId);
+            });            
+
         }
     }
 }

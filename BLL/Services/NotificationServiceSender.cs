@@ -44,7 +44,7 @@ namespace BLL.Services
                 try
                 {
                     var notifications = _notificationService.GetAll()//.AsNoTracking()
-                        .Where(i => i.IsSend == false);
+                        .Where(i => i.IsSend == false).Include(i=>i.Credentials);
                     //.ToList();
                     Parallel.ForEach(notifications, notification =>
                     {
@@ -53,6 +53,10 @@ namespace BLL.Services
                             case TypeNotification.Email:
                                 Mailing(notification);
                                 break;
+                            case TypeNotification.Telegram:
+                                SendViaTelegram(notification);
+                                break;
+
                         };
                     });
                     var sent_notifications = notifications.Where(i => i.IsSend == true).AsEnumerable();
@@ -83,7 +87,7 @@ namespace BLL.Services
             }            
             catch (Exception ex)//SmtpException, ObjectDisposedException, InvalidOperationException, ArgumentNullException
             {
-                _logger.LogInformation(ex, $"Notification id = {notification.Id}");
+                _logger.LogInformation(ex, $"Notification id = {notification.Id}");                
             }
             if (taskResult.Status == TaskStatus.RanToCompletion)
             {
@@ -98,11 +102,28 @@ namespace BLL.Services
                 waitHandler.WaitOne();
                 _logger.LogDebug($"Notification not sent, id = {notification.Id}");
                 _logger.LogInformation(taskResult.Exception, $"Notification id = {notification.Id}");
+                notification.Exception.Type = taskResult.Exception.GetType().FullName;
+                notification.Exception.HResult = taskResult.Exception.HResult;
+                notification.Exception.Message = taskResult.Exception.Message;
                 notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
-                notification.NumberOfAttemptToSent++;
+                notification.NumberOfAttemptToSent++;                
                 waitHandler.Set();
             }
             //_context.Notifications.Update(notification);
+        }
+
+        private void SendViaTelegram(Notification notification)
+        {
+            var exceprion = new NotImplementedException();
+            waitHandler.WaitOne();
+            _logger.LogDebug($"Notification not sent, id = {notification.Id}");
+            _logger.LogInformation(exceprion, $"Notification id = {notification.Id}");
+            notification.Exception.Type = exceprion.GetType().FullName;
+            notification.Exception.HResult = exceprion.HResult;
+            notification.Exception.Message = exceprion.Message;
+            notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
+            notification.NumberOfAttemptToSent++;
+            waitHandler.Set();
         }
 
         #region Dispose

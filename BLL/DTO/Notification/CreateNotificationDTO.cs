@@ -12,5 +12,7 @@ namespace BLL.DTO.Notification
         public string Sender { get; set; }
         public string Header { get; set; }
         public string MessageBody { get; set; }
+
+        public Credentials Credentials { get; set; }
     }
 }

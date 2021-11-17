@@ -1,10 +1,12 @@
 ﻿using BLL.Interfaces;
 using BLL.Interfaces.NamedPipe;
+using BLL.Services.NamedPipe;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Threading;
+using BLL.Helpers;
 
 namespace NotificationService
 {
@@ -26,7 +28,10 @@ namespace NotificationService
                 INamedPipeServerService pipeServerService = serviceProvider.GetService<INamedPipeServerService>();
                 notificationServiceSender.Execute();
                 problemNotificationsService.Execute();
-                pipeServerService.StartService();
+                pipeServerService.StartService(new IncomingDataForPipeServer(){
+                    pipeName = "notificationServiceAddNotificationToQueue",
+                    func = ServerFunctions.AddNotification
+                }, 5);
                 Console.WriteLine("Start read key");
                 Console.ReadKey();
                 pipeServerService.Stop();

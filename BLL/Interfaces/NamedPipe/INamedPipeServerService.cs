@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using BLL.Helpers;
 
 namespace BLL.Interfaces.NamedPipe
 {
     public interface INamedPipeServerService
     {
-        void StartService();
+        void StartService(IncomingDataForPipeServer incomingData, int numThreads);
         void Stop();
     }
 }
