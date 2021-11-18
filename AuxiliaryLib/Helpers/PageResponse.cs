@@ -7,8 +7,8 @@ namespace AuxiliaryLib.Helpers
 {
     public class PageResponse<T>
     {
-        public int PageLength { get; private set; }
-        public int PageNumber { get; private set; }
+        public int PageLength { get; set; }
+        public int PageNumber { get; set; }
         [JsonIgnore]
         public int Skip
         {
@@ -21,13 +21,13 @@ namespace AuxiliaryLib.Helpers
         }
         //public int CurrentPage { get; set; }
         //public int NumerOfItemsPerPage { get; set; }
-        public int TotalItems { get; set; }
+        public long TotalItems { get; set; }
 
         public int TotalPages
         {
             get
             {
-                return TotalItems > 0 ? TotalItems / PageLength : 0;
+                return TotalItems > 0 ? (int)(TotalItems / PageLength) : 0;
             }
         }
         public int ItemCount
@@ -49,6 +49,10 @@ namespace AuxiliaryLib.Helpers
                 this.PageNumber = pageNumber.Value;
             else
                 this.PageNumber = 1;
+            if (PageNumber < 1)
+                PageNumber = 1;
+            if (PageLength < 1)
+                PageLength = 1;
         }
 
         public PageResponse() { }

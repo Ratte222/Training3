@@ -10,6 +10,7 @@ using System.IO.Pipes;
 using System.Text;
 using System.Threading;
 using BLL.Helpers;
+using System.Threading.Tasks;
 
 namespace BLL.Services.NamedPipe
 {
@@ -17,22 +18,25 @@ namespace BLL.Services.NamedPipe
     //https://docs.microsoft.com/en-us/dotnet/standard/io/how-to-use-named-pipes-for-network-interprocess-communication?redirectedfrom=MSDN
     public class NamedPipeServerService: INamedPipeServerService
     {
-        private int _numThreads = 5;
+        private int _numThreads = 0;
         //private readonly string pipeName_AddNotificationToQueue = "notificationServiceAddNotificationToQueue";
         private readonly ILogger<NamedPipeServerService> _logger;
         
         private readonly INotificationService _notificationService;
+        private readonly INotificationMongoRepository _notificationMongoRepository;
 
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
         private bool serviceWork = true;
 
-        public NamedPipeServerService(ILogger<NamedPipeServerService> logger, INotificationService notificationService)
+        public NamedPipeServerService(ILogger<NamedPipeServerService> logger, INotificationService notificationService,
+            INotificationMongoRepository notificationMongoRepository)
         {
             (_logger, _notificationService) = (logger, notificationService);
+            _notificationMongoRepository = notificationMongoRepository;            
             
         }
 
-        public void StartService(IncomingDataForPipeServer incomingData, int numThreads = 5)
+        public async Task StartServiceAsync(IncomingDataForPipeServer incomingData, int numThreads = 5)
         {
             _numThreads = numThreads;
             int i;
@@ -45,7 +49,7 @@ namespace BLL.Services.NamedPipe
                 servers[i] = new Thread(ServerThread);
                 servers[i].Start(incomingData);
             }
-            Thread.Sleep(250);
+            await Task.Delay(250);
             while (serviceWork)
             {
                 for (int j = 0; j < _numThreads; j++)
@@ -70,6 +74,7 @@ namespace BLL.Services.NamedPipe
                     servers[j].Abort(); 
                 }
             }
+            //return Task.CompletedTask;
         }
 
         private void ServerThread(object data)
@@ -77,25 +82,25 @@ namespace BLL.Services.NamedPipe
             IncomingDataForPipeServer incomingData = (IncomingDataForPipeServer)data;
 
             NamedPipeServerStream pipeServer =
-                new NamedPipeServerStream(incomingData.pipeName, PipeDirection.InOut, _numThreads);
+                new NamedPipeServerStream(incomingData.pipeName, PipeDirection.InOut, 30);
             int threadId = Thread.CurrentThread.ManagedThreadId;
 
             // Wait for a client to connect
             pipeServer.WaitForConnection();
 
             _logger.LogDebug("Client connected on thread[{0}].", threadId);
-            //try
-            //{
+            try
+            {
                 StreamString ss = new StreamString(pipeServer);
-                incomingData.func.Invoke(waitHandler, _notificationService, ss, _logger);
-                
-            //}
-            // Catch the IOException that is raised if the pipe is broken
-            // or disconnected.
-            // catch (Exception ex)
-            // {
-            //     _logger.LogWarning(ex, "");
-            // }
+                incomingData.func1?.Invoke(waitHandler, _notificationService, ss, _logger);
+                incomingData.func2?.Invoke(_notificationMongoRepository, ss, _logger);
+                incomingData.action1?.Invoke(waitHandler, _notificationService, _notificationMongoRepository,
+                    ss, _logger);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "");
+            }
             pipeServer.Close();
         }
         

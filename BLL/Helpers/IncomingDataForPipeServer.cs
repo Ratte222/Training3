@@ -10,7 +10,11 @@ namespace BLL.Helpers
     public struct IncomingDataForPipeServer
     {
         public string pipeName;
-        public Func<AutoResetEvent, INotificationService, StreamString, ILogger, bool> func;
+        public Func<AutoResetEvent, INotificationService, StreamString, ILogger, bool> func1;
+        public Func<INotificationMongoRepository, StreamString, ILogger, bool> func2;
+        public Action<AutoResetEvent, INotificationService, INotificationMongoRepository, 
+            StreamString, ILogger> action1;
+
     }
     //public struct IncomingDataForPipeClient
     //{

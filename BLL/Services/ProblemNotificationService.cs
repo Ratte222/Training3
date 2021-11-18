@@ -28,14 +28,14 @@ namespace BLL.Services
             _cancellationToken = _cancellationTokenSource.Token;
         }
 
-        public async Task Execute()
+        public async Task ExecuteAsync()
         {
             while (true)
             {
                 try
                 {                  
                     DateTime dateTime = DateTime.UtcNow;  
-                    var problem_notifications = _notificationService.GetAll_Queryable()
+                    var problem_notifications = _notificationService.GetAll()
                         .Where(i=>((i.IsSend == false)&&(i.NumberOfAttemptToSent > _notificationSenderSettings.NumberOfAttemptToSentForPushToFile)
                         && ((dateTime - i.DateTimeCreate)> TimeSpan.FromMinutes(_notificationSenderSettings.TimeAfterCreateForPushToFile))
                         && i.DateTimeOfTheLastAttemptToSend.HasValue ? ((dateTime - i.DateTimeOfTheLastAttemptToSend.Value)<
@@ -44,12 +44,16 @@ namespace BLL.Services
                     if(problem_notifications.Count() > 0)
                     {
                         await _notificationMongoRepository.AddRangeAsync(problem_notifications);
+                        //with .AsNoTraking have errore: "The instance of entity type 'Notification' cannot be tracked because another instance with the same
+                        //key value for {'Id'} is already being tracked. When attaching existing entities, ensure that only one
+                        //entity instance with a given key value is attached. Consider using
+                        //'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values."
                         await _notificationService.DeleteRangeAsync(problem_notifications);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Problems sending notifications");
+                    _logger.LogWarning(ex, $"Problem in {nameof(ProblemNotificationsService)}");
                     break;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);

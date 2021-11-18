@@ -1,10 +1,11 @@
 ﻿using BLL.Helpers;
+using System.Threading.Tasks;
 
 namespace BLL.Interfaces.NamedPipe
 {
     public interface INamedPipeServerService
     {
-        void StartService(IncomingDataForPipeServer incomingData, int numThreads);
+        Task StartServiceAsync(IncomingDataForPipeServer incomingData, int numThreads);
         void Stop();
     }
 }

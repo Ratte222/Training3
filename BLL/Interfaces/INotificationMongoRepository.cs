@@ -14,5 +14,8 @@ namespace BLL.Interfaces
         IEnumerable<Notification> Find(FilterDefinition<Notification> filterDefinition);
         Task AddRangeAsync(IEnumerable<Notification> notifications);
         Task ReplaceManyByIdAsync(IEnumerable<Notification> notifications);
+        void ReplaceOneById(Notification notification);
+        long Count(FilterDefinition<Notification> filterDefinition);
+        Task DeleteManyAsync(IEnumerable<Notification> notifications);
     }
 }

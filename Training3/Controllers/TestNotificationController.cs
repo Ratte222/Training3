@@ -24,7 +24,7 @@ namespace Training3.Controllers
         public TestNotificationController(INotificationService notificationService, IMapper mapper,
             INamedPipeClientService namedPipeClient)
         {
-            (_notificationService, _mapper, _namedPipeClient) = 
+            (_notificationService, _mapper, _namedPipeClient) =
                 (notificationService, mapper, namedPipeClient);
         }
 
@@ -44,6 +44,34 @@ namespace Training3.Controllers
         public IActionResult Get()
         {
             throw new NotImplementedException();
+        }
+
+        [HttpGet("CheckProblemNotifications")]
+        public IActionResult CheckProblemNotifications(int? pageLength = null, int? pageNumber = null)
+        {
+            return Ok(_namedPipeClient.CheckProblemNotification(pageLength, pageNumber));
+        }
+
+        [HttpGet("Re_sendProblemNotifications")]
+        public IActionResult Re_sendProblemNotifications()
+        {
+            if (_namedPipeClient.Re_sendProblemNotifications())
+                return Ok();
+            else
+                return StatusCode(500);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(Notification notification)
+        {
+            if(_namedPipeClient.UpdateProblemNotification(notification))
+            {
+                return Ok();
+            }    
+            else
+            {
+                return StatusCode(500);
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace BLL.Interfaces
     public interface INotificationServiceSender:IDisposable
     {
         void Stop();
-        Task Execute();
+        Task ExecuteAsync();
 
     }
 }

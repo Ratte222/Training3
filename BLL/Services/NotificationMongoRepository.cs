@@ -26,7 +26,7 @@ namespace BLL.Services
         public async Task AddRangeAsync(IEnumerable<Notification> notifications)
         {
             //await _notificationCollection.InsertOneAsync(notifications.First());
-            await _notificationCollection.InsertManyAsync(notifications);   
+            await _notificationCollection.InsertManyAsync(notifications);
             //var listWrites = new List<WriteModel<Notification>>();
             //foreach(var notification in notifications)
             //{
@@ -54,6 +54,28 @@ namespace BLL.Services
                 listWrites.Add(new ReplaceOneModel<Notification>(filter, notification));//x => x.Id == notification.Id
             };
             await _notificationCollection.BulkWriteAsync(listWrites);
+        }
+
+        public void ReplaceOneById(Notification notification)
+        {
+            var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
+            _notificationCollection.ReplaceOne(filter, notification);            
+        }
+
+        public async Task DeleteManyAsync(IEnumerable<Notification> notifications)
+        {
+            var listWrites = new List<WriteModel<Notification>>();
+            foreach (var notification in notifications)
+            {
+                var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
+                listWrites.Add(new DeleteOneModel<Notification>(filter));
+            };
+            await _notificationCollection.BulkWriteAsync(listWrites);
+        }
+
+        public long Count(FilterDefinition<Notification> filterDefinition)
+        {
+            return _notificationCollection.CountDocuments(filterDefinition);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace BLL.Interfaces
     public interface IProblemNotificationsService:IDisposable
     {
         void Stop();
-        Task Execute();
+        Task ExecuteAsync();
     }
 }
