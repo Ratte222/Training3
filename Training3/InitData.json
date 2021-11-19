@@ -155,5 +155,91 @@
       "CategoryId": 1,
       "Created": "2021-11-03T08:50:14.666Z"
     }
+  ],
+  "SchoolClasses": [
+    {
+      "Title": "6a"
+    },
+    {
+      "Title": "6b"
+    }
+  ],
+  "AcademicSubjects": [
+    {
+      "Title": "Math"
+    },
+    {
+      "Title": "Chemistry"
+    },
+    {
+      "Title": "Geography"
+    },
+    {
+      "Title": "History"
+    }
+  ],
+  "Pupils": [
+    {
+      "FirstName": "Artur",
+      "SchoolClassId": 1
+    },
+    {
+      "FirstName": "Taya",
+      "SchoolClassId": 1
+    },
+    {
+      "FirstName": "Roma",
+      "SchoolClassId": 1
+    },
+    {
+      "FirstName": "Nike",
+      "SchoolClassId": 2
+    },
+    {
+      "FirstName": "Alex",
+      "SchoolClassId": 2
+    }
+  ],
+  "PupilAcademicSubjects": [
+    {
+      "PupilId": 1,
+      "AcademicSubjectId": 2
+    },
+    {
+      "PupilId": 2,
+      "AcademicSubjectId": 2
+    },
+    {
+      "PupilId": 3,
+      "AcademicSubjectId": 2
+    },
+    {
+      "PupilId": 4,
+      "AcademicSubjectId": 2
+    },
+    {
+      "PupilId": 1,
+      "AcademicSubjectId": 3
+    },
+    {
+      "PupilId": 2,
+      "AcademicSubjectId": 3
+    },
+    {
+      "PupilId": 3,
+      "AcademicSubjectId": 3
+    },
+    {
+      "PupilId": 4,
+      "AcademicSubjectId": 3
+    },
+    {
+      "PupilId": 2,
+      "AcademicSubjectId": 1
+    },
+    {
+      "PupilId": 3,
+      "AcademicSubjectId": 1
+    }
   ]
 }

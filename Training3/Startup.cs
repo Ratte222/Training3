@@ -113,7 +113,11 @@ namespace Training3
             applicationContext.Database.Migrate();
             DbInitializer.Initialize(applicationContext, 
                 Configuration.GetSection("Categories").Get<List<Category>>(),
-                Configuration.GetSection("Expenses").Get<List<Expense>>());
+                Configuration.GetSection("Expenses").Get<List<Expense>>(),
+                Configuration.GetSection("SchoolClasses").Get<List<SchoolClass>>(),
+                Configuration.GetSection("Pupils").Get<List<Pupil>>(),
+                Configuration.GetSection("AcademicSubjects").Get<List<AcademicSubject>>(),
+                Configuration.GetSection("PupilAcademicSubjects").Get<List<PupilAcademicSubject>>());
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
