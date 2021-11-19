@@ -97,6 +97,11 @@ namespace BLL.Services.NamedPipe
                 wainHandler.WaitOne();
                 try
                 {
+                    problemNotifications.ForEach(n =>
+                    {
+                        n.NumberOfAttemptToSent = 0;
+                        n.DateTimeOfTheLastAttemptToSend = null;
+                    });
                     notificationService.CreateRangeAsync(problemNotifications).GetAwaiter();
                 }
                 finally
