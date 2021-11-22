@@ -60,7 +60,7 @@ namespace Training3
 
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDBContext>(options => options.UseMySql(connection/*, new MySqlServerVersion(new Version(8, 0, 27))*/),
+            services.AddDbContext<AppDBContext>(options => options.UseMySql(connection, new MySqlServerVersion(new Version(8, 0, 27))),
                 ServiceLifetime.Transient);
 
             #region Mapster
@@ -105,10 +105,12 @@ namespace Training3
             services.AddSingleton<ExpenseEvents>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IExpenseService, ExpenseService>();            
+            services.AddScoped<IQueryService, QueryService>();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDBContext applicationContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDBContext applicationContext,
+            IQueryService queryService)
         {
             applicationContext.Database.Migrate();
             DbInitializer.Initialize(applicationContext, 
@@ -118,6 +120,7 @@ namespace Training3
                 Configuration.GetSection("Pupils").Get<List<Pupil>>(),
                 Configuration.GetSection("AcademicSubjects").Get<List<AcademicSubject>>(),
                 Configuration.GetSection("PupilAcademicSubjects").Get<List<PupilAcademicSubject>>());
+            queryService.SQLQuery();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
