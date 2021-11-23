@@ -60,7 +60,7 @@ namespace Training3
 
 
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDBContext>(options => options.UseMySql(connection, new MySqlServerVersion(new Version(8, 0, 27))),
+            services.AddDbContext<AppDBContext>(options => options.UseMySql(connection/*, new MySqlServerVersion(new Version(8, 0, 27))*/),
                 ServiceLifetime.Transient);
 
             #region Mapster
