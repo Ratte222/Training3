@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using System.Text;
+using DAL.Entity;
 
 namespace BLL.Services
 {
@@ -34,37 +35,38 @@ namespace BLL.Services
             //LEFT JOIN pupilacademicsubjects AS y1 ON y1.PupilId = y0.Id
             //LEFT JOIN academicsubjects AS z0 ON z0.Id = y1.AcademicSubjectId
             //WHERE z0.Title = 'Chemistry'
-
-            //string query = $"SELECT x0.Id, x0.Title " +
-            //    $" FROM " +
-            //    $"{nameof(_appDBContext.SchoolClasses)} AS x0 LEFT JOIN pupils AS y0 ON x0.Id = y0.SchoolClassId " +
-            //    $"INNER JOIN ( " +
-            //    $"SELECT y0.Id, y0.FirstName FROM {nameof(_appDBContext.PupilAcademicSubjects)} " +
-            //    $"LEFT JOIN {nameof(_appDBContext.AcademicSubjects)} AS z0 ON z0.Id = y1.AcademicSubjectId " +
-            //    $"WHERE z0.Title = " +
-            //    $"'Chemistry' )  AS y1 ON y1.PupilId = y0.Id";
-            //$"@academicSubjectsName";
-            //SqlParameter academivSubjectName = new SqlParameter("@academicSubjectName", "Cemistry");
-
+            
             string query = @"SELECT `sc`.`Id`, `sc`.`Title`, `s`.`Id0`, `s`.`FirstName`, `s`.`LastName`, `s`.`SchoolClassId` FROM ( "
                         + @"SELECT `p`.`Id` AS `Id0`, `p`.`FirstName`, `p`.`LastName`, `p`.`SchoolClassId` FROM pupils AS `p` "
                         + @"WHERE `p`.`FirstName` = 'Taya'"
                         + @") AS `s`"
-                        + @"LEFT JOIN schoolclasses AS `sc` ON `sc`.`Id` = `s`.`SchoolClassId`";
+                        + @"LEFT JOIN schoolclasses AS `sc` ON `sc`.`Id` = `s`.`SchoolClassId` ";
 
-            //this query generate ef core
-            //query = @"SELECT `s`.`Id`, `s`.`Title`, `p`.`Id`, `p`.`FirstName`, `p`.`LastName`, `p`.`SchoolClassId` " +
-            //    @"FROM `SchoolClasses` AS `s` " +
-            //    @"LEFT JOIN `Pupils` AS `p` ON `s`.`Id` = `p`.`SchoolClassId` " +
-            //    @"WHERE EXISTS ( " +
-            //        @"SELECT 1 " +
-            //        @"FROM `Pupils` AS `p0` " +
-            //        @"WHERE (`s`.`Id` = `p0`.`SchoolClassId`) AND (`p0`.`FirstName` = 'Taya')) " +
-            //    @"ORDER BY `s`.`Id`, `p`.`Id`";//Exception: An item with the same key has already been added. Key: Id'
 
-            var temp = _appDBContext.SchoolClasses.FromSqlRaw(query).ToArray();
-            //var temp = _appDBContext.Pupils.FromSqlRaw(query).ToList();
-
+            query = @"SELECT sc.Id, sc.Title, p1.pId, p1.FirstName, p1.LastName, p1.SchoolClassId, " +
+                @"p1.PupilId, p1.AcademicSubjectId, p1.aId, p1.aTitle, p1.Description " +
+                @"FROM schoolclasses AS `sc` " +
+                @"INNER JOIN ( " +
+                @"SELECT p.Id AS pId, p.FirstName, p.LastName, p.SchoolClassId, pas0.PupilId, pas0.AcademicSubjectId, " +
+                    @"pas0.aId, pas0.Title AS aTitle, pas0.Description FROM pupils AS `p` " +
+                    @"INNER JOIN ( " +
+                    @"SELECT pas.PupilId, pas.AcademicSubjectId, a1.aId, a1.Title, a1.Description FROM pupilacademicsubjects AS `pas` " +
+                        @"INNER JOIN ( " +
+                        @"SELECT a0.Id AS aId, a0.Title, a0.Description FROM academicsubjects AS `a0` " +
+                            @"WHERE a0.Title = 'Chemistry' " +
+                        @") AS `a1` ON a1.aId = pas.AcademicSubjectId " +
+                    @") AS `pas0` ON p.Id = pas0.PupilId " +
+                @") AS `p1` ON sc.Id = p1.SchoolClassId";
+            //var temp = _appDBContext.SchoolClasses.FromSqlInterpolated($"SELECT `sc`.`Id`, `sc`.`Title`, `s`.`Id0`, `s`.`FirstName`, `s`.`LastName`, `s`.`SchoolClassId` FROM ( SELECT `p`.`Id` AS `Id0`, `p`.`FirstName`, `p`.`LastName`, `p`.`SchoolClassId` FROM pupils AS `p` WHERE `p`.`FirstName` = 'Taya' ) AS `s` LEFT JOIN schoolclasses AS `sc` ON `sc`.`Id` = `s`.`SchoolClassId`"
+            //              ).ToArray();
+            var schoolClass = _appDBContext.SchoolClasses.FromSqlRaw(query)
+                .AsNoTracking().AsEnumerable()
+                .GroupBy(i => i.Id
+                    //j=>j, (key, entity)=>
+                    //new {
+                    //    SchoolClass = entity
+                    //}
+                );
 
             //var temp2 = _appDBContext.AcademicSubjects.Where(i => i.Title == "Chemistry")
             //    .Include(j => j.PupilAcademicSubjects).Select(n=>n.PupilAcademicSubjects.Select(i=>i.PupilId)).ToArray();
