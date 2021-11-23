@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TestServer-Sent_Events2.html = TestServer-Sent_Events2.html
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{C3B34AF1-7FBE-4F4D-8102-77276A3D02D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{ED1F378B-A7C0-4412-8C03-F6CE75A382BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED1F378B-A7C0-4412-8C03-F6CE75A382BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED1F378B-A7C0-4412-8C03-F6CE75A382BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3B34AF1-7FBE-4F4D-8102-77276A3D02D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3B34AF1-7FBE-4F4D-8102-77276A3D02D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3B34AF1-7FBE-4F4D-8102-77276A3D02D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3B34AF1-7FBE-4F4D-8102-77276A3D02D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -7,5 +7,6 @@ namespace BLL.Interfaces
     public interface IQueryService
     {
         void SQLQuery();
+        void DifficultUpdate();
     }
 }

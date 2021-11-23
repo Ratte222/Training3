@@ -50,12 +50,46 @@ namespace BLL.Services
                     @") AS `pas0` ON p.Id = pas0.PupilId " +
                 @") AS `p1` ON sc.Id = p1.SchoolClassId";
             var schoolClass = _appDBContext.SchoolClasses.FromSqlRaw(query, studySubjectParameter)
-                .Distinct().AsEnumerable();                
+                .Distinct().AsEnumerable();
             #endregion
-
+            
 
         }
 
+        public void DifficultUpdate()
+        {
+            string studySubject_ = "Chemistry";
+            var schoolClasses = _appDBContext.SchoolClasses.Include(i => i.Pupils)
+                .ThenInclude(j=>j.PupilAcademicSubjects).ThenInclude(n=>n.AcademicSubject)
+                .ToList();
+            string newDescription = "learn about chemical";
+            AcademicSubject academicSubject = null;
+            //schoolClasses.ForEach(i =>
+            //{
+            //    foreach (var pupil in i.Pupils)//ICollection does not have ForEach function
+            //    {
+            //         academicSubject = pupil.PupilAcademicSubjects
+            //            .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
+            //            .Select(n=>n.AcademicSubject).FirstOrDefault();
+            //        if (academicSubject is not null)
+            //            break;
+            //    }
+            //});
 
+            academicSubject =  schoolClasses.Select(i => i.Pupils.Select(j => j.PupilAcademicSubjects
+                  .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
+                  .Select(k=>k.AcademicSubject).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
+
+            if(academicSubject is not null)
+            {
+                academicSubject.Description = newDescription;
+                _appDBContext.AcademicSubjects.Update(academicSubject);
+                _appDBContext.SaveChanges();
+            }
+            
+                //.FirstOrDefault().PupilAcademicSubjects.FirstOrDefault().AcademicSubject.Description
+                //= "Count digits";
+
+        }
     }
 }

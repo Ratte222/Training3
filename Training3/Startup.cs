@@ -120,7 +120,8 @@ namespace Training3
                 Configuration.GetSection("Pupils").Get<List<Pupil>>(),
                 Configuration.GetSection("AcademicSubjects").Get<List<AcademicSubject>>(),
                 Configuration.GetSection("PupilAcademicSubjects").Get<List<PupilAcademicSubject>>());
-            queryService.SQLQuery();
+            //queryService.SQLQuery();
+            queryService.DifficultUpdate();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
