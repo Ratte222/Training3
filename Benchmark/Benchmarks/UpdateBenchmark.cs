@@ -62,7 +62,7 @@ namespace Benchmark.Benchmarks
                 .ThenInclude(j => j.PupilAcademicSubjects).ThenInclude(n => n.AcademicSubject)
                 .ToList();
             string newDescription = "learn about chemical";
-            AcademicSubject academicSubject = academicSubject = schoolClasses.Select(i => i.Pupils.Select(j => j.PupilAcademicSubjects
+            AcademicSubject academicSubject = schoolClasses.Select(i => i.Pupils.Select(j => j.PupilAcademicSubjects
                  .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
                  .Select(k => k.AcademicSubject).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
             if (academicSubject is not null)
@@ -70,7 +70,8 @@ namespace Benchmark.Benchmarks
                 academicSubject.Description = newDescription;
                 _appDBContext.AcademicSubjects.Update(academicSubject);
                 _appDBContext.SaveChanges();
-            }
+            }            
+            
         }
     }
 }

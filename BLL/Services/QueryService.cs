@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
 using System.Text;
+using AuxiliaryLib.Extensions;
 using DAL.Entity;
 using MySqlConnector;
+using System.Reflection;
+using System.Collections;
 
 namespace BLL.Services
 {
@@ -79,17 +82,65 @@ namespace BLL.Services
             academicSubject =  schoolClasses.Select(i => i.Pupils.Select(j => j.PupilAcademicSubjects
                   .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
                   .Select(k=>k.AcademicSubject).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
-
-            if(academicSubject is not null)
-            {
+            if (academicSubject is not null)
                 academicSubject.Description = newDescription;
+            ParametricUpdate(academicSubject, new[] { "Description" });
+
+            if (academicSubject is not null)
+            {
+                
                 _appDBContext.AcademicSubjects.Update(academicSubject);
                 _appDBContext.SaveChanges();
             }
-            
-                //.FirstOrDefault().PupilAcademicSubjects.FirstOrDefault().AcademicSubject.Description
-                //= "Count digits";
+
+            if (academicSubject is not null)
+            {
+
+                _appDBContext.AcademicSubjects.Attach(academicSubject);
+                _appDBContext.Entry(academicSubject).Property(i => i.Description).IsModified = true;
+                academicSubject.Description = newDescription;
+                _appDBContext.SaveChanges();
+            }
+
+            //.FirstOrDefault().PupilAcademicSubjects.FirstOrDefault().AcademicSubject.Description
+            //= "Count digits";
 
         }
+
+        public TEntity ParametricUpdate<TEntity>(TEntity item, string[] parameterNames) where TEntity : class
+        {
+            if (item is null)
+                return null;
+            _appDBContext.Set<TEntity>().Attach(item);
+            var type = typeof(TEntity);
+            var instanceName = type.GetAllPublicProperty();
+            foreach (var parameterName in parameterNames)
+            {
+                if(instanceName.Any(i=>i.Equals(parameterName)))
+                    _appDBContext.Entry(item).Property(parameterName).IsModified = true;
+            }
+            var propertyInfos = type.GetAllPublicCollection();
+            foreach (var propertyInfo in propertyInfos)
+            {
+                var pT = propertyInfo.PropertyType;
+                var tCast = typeof(ICollection<>);
+                if(pT.IsGenericType && tCast.IsAssignableFrom(pT.GetGenericTypeDefinition()) ||
+                    pT.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
+                {
+                    IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
+                    if (listObject != null)
+                    {
+                        _appDBContext.UpdateRange(listObject);
+                        //foreach (object o in listObject)
+                        //{
+                        //    Type t = o.GetType();
+                        //    _appDBContext.Update(o);                            
+                        //}
+                    }
+                }                
+            }
+            _appDBContext.SaveChanges();
+            return item;
+        }        
     }
 }

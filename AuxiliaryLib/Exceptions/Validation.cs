@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AuxiliaryLib.Exceprions
+namespace AuxiliaryLib.Exceptions
 {
     public class ValidationException : Exception
     {
