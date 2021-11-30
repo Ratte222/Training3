@@ -87,9 +87,10 @@ namespace BLL.Services
             //    academicSubject.Description = newDescription;
             //ParametricUpdate(academicSubject, new[] { "Description" });
 
-            //schoolClasses[0].Title = "6c";
-            //schoolClasses[0].Pupils.First().FirstName = "CheckName";
-            //ParametricUpdate(schoolClasses[0], new[] { "Title" });
+            schoolClasses[0].Title = "6d";
+            schoolClasses[0].Pupils.First().FirstName = "Igor";
+            schoolClasses[0].Pupils.First().PupilAcademicSubjects.First().AcademicSubject.Title = "test";
+            ParametricUpdate(schoolClasses[0], new[] { "Title" }, new string[] { "Id", "PupilId", "AcademicSubjectId" });
             #endregion
 
             if (academicSubject is not null)
@@ -139,13 +140,57 @@ namespace BLL.Services
                         foreach (object o in listObject)
                         {
                             //Type t = o.GetType();
-                            _appDBContext.Update(o);
+                            //_appDBContext.Update(o);
+                            _appDBContext.Attach(o);
+
                         }
                     }
                 }                
             }
             _appDBContext.SaveChanges();
             return item;
-        }        
+        }
+
+        public void ParametricUpdate(object item, string[] parameterNames, string[] idsName)
+        {
+            if (item is null)
+                return;
+            _appDBContext.Attach(item);
+            var type = item.GetType();
+            var instanceName = type.GetAllPublicProperty().Except(
+                type.GetAllPublicCollection().Select(i => i.Name).ToArray())
+                .Except(idsName);
+            foreach (var parameterName in parameterNames)
+            {
+                if (instanceName.Any(i => i.Equals(parameterName)))
+                {
+                    var itemParam = type.GetProperty(parameterName).GetValue(item, null);
+                    if (itemParam is not null)
+                    {
+                        if(!itemParam.GetType().IsClass)
+                            _appDBContext.Entry(item).Property(parameterName).IsModified = true;
+                    }
+                }
+            }
+            var propertyInfos = type.GetAllPublicCollection();
+            foreach (var propertyInfo in propertyInfos)
+            {
+                var pT = propertyInfo.PropertyType;
+                var tCast = typeof(ICollection<>);
+                if (pT.IsGenericType && tCast.IsAssignableFrom(pT.GetGenericTypeDefinition()) ||
+                    pT.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
+                {
+                    IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
+                    if (listObject != null)
+                    {
+                        foreach (object o in listObject)
+                        {
+                            ParametricUpdate(o, o.GetType().GetAllPublicProperty().ToArray(), idsName);
+                        }
+                    }
+                }
+            }
+            _appDBContext.SaveChanges();
+        }
     }
 }

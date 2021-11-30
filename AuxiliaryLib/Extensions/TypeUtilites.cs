@@ -50,5 +50,14 @@ namespace AuxiliaryLib.Extensions
                 .Select(x => x)
                 .ToList();
         }
+
+        public static List<PropertyInfo> GetAllPublicObject(this Type type)
+        {
+            return type
+                .GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance)
+                .Where(fi => fi.PropertyType.Name == typeof(ICollection<>).Name)
+                .Select(x => x)
+                .ToList();
+        }
     }
 }
