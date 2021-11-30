@@ -13,8 +13,9 @@ using System.Security.Cryptography;
 
 namespace Benchmark.Benchmarks
 {
+    //https://docs.microsoft.com/ru-ru/ef/core/performance/performance-diagnosis?tabs=simple-logging%2Cload-entities
     [MemoryDiagnoser]
-    [SimpleJob(RunStrategy.ColdStart, targetCount: 100)]
+    [SimpleJob(RunStrategy.ColdStart, targetCount: 1000)]
     [MinColumn, MaxColumn, MeanColumn, MedianColumn]
     public class UpdateBenchmark
     {
@@ -66,8 +67,15 @@ namespace Benchmark.Benchmarks
         {
             var vs = Select();
             Change(vs[0]);
-            _appDBContext.Update(vs[0]);
-            _appDBContext.SaveChanges();
+            var transaction = _appDBContext.Database.BeginTransaction();
+            try
+            {
+                _appDBContext.Update(vs[0]);
+                _appDBContext.SaveChanges();
+                transaction.Commit();
+            }
+            catch
+            { }
         }
 
         [Benchmark]
@@ -85,8 +93,14 @@ namespace Benchmark.Benchmarks
             var vs = Select();
             Change(vs[0]);
             Change(vs[1]);
-            _appDBContext.UpdateRange(vs);
-            _appDBContext.SaveChanges();
+            var transaction = _appDBContext.Database.BeginTransaction();
+            try
+            {
+                _appDBContext.UpdateRange(vs);
+                _appDBContext.SaveChanges();
+                transaction.Commit();
+            }
+            catch { }
         }
 
         [Benchmark]
