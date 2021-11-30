@@ -65,7 +65,7 @@ namespace BLL.Services
             var schoolClasses = _appDBContext.SchoolClasses.Include(i => i.Pupils)
                 .ThenInclude(j=>j.PupilAcademicSubjects).ThenInclude(n=>n.AcademicSubject)
                 .ToList();
-            string newDescription = "learn about chemical";
+            string newDescription = "do not learn about chemical";
             AcademicSubject academicSubject = null;
             //schoolClasses.ForEach(i =>
             //{
@@ -82,13 +82,19 @@ namespace BLL.Services
             academicSubject =  schoolClasses.Select(i => i.Pupils.Select(j => j.PupilAcademicSubjects
                   .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
                   .Select(k=>k.AcademicSubject).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
-            if (academicSubject is not null)
-                academicSubject.Description = newDescription;
-            ParametricUpdate(academicSubject, new[] { "Description" });
+            #region Tests
+            //if (academicSubject is not null)
+            //    academicSubject.Description = newDescription;
+            //ParametricUpdate(academicSubject, new[] { "Description" });
+
+            //schoolClasses[0].Title = "6c";
+            //schoolClasses[0].Pupils.First().FirstName = "CheckName";
+            //ParametricUpdate(schoolClasses[0], new[] { "Title" });
+            #endregion
 
             if (academicSubject is not null)
             {
-                
+
                 _appDBContext.AcademicSubjects.Update(academicSubject);
                 _appDBContext.SaveChanges();
             }
@@ -102,8 +108,7 @@ namespace BLL.Services
                 _appDBContext.SaveChanges();
             }
 
-            //.FirstOrDefault().PupilAcademicSubjects.FirstOrDefault().AcademicSubject.Description
-            //= "Count digits";
+
 
         }
 
@@ -130,12 +135,12 @@ namespace BLL.Services
                     IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
                     if (listObject != null)
                     {
-                        _appDBContext.UpdateRange(listObject);
-                        //foreach (object o in listObject)
-                        //{
-                        //    Type t = o.GetType();
-                        //    _appDBContext.Update(o);                            
-                        //}
+                        //_appDBContext.UpdateRange(listObject);
+                        foreach (object o in listObject)
+                        {
+                            //Type t = o.GetType();
+                            _appDBContext.Update(o);
+                        }
                     }
                 }                
             }
