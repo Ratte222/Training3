@@ -11,15 +11,18 @@ using DAL.Entity;
 using MySqlConnector;
 using System.Reflection;
 using System.Collections;
+using Microsoft.Extensions.Logging;
 
 namespace BLL.Services
 {
     public class QueryService: IQueryService
     {
         private readonly AppDBContext _appDBContext;
-        public QueryService(AppDBContext appDBContext)
+        //private readonly ILogger<QueryService> _logger;
+        public QueryService(AppDBContext appDBContext/*, ILogger<QueryService> logger*/)
         {
             _appDBContext = appDBContext;
+            //_logger = logger;
         }
 
 
@@ -87,10 +90,13 @@ namespace BLL.Services
             //    academicSubject.Description = newDescription;
             //ParametricUpdate(academicSubject, new[] { "Description" });
 
-            schoolClasses[0].Title = "6d";
-            schoolClasses[0].Pupils.First().FirstName = "Igor";
-            schoolClasses[0].Pupils.First().PupilAcademicSubjects.First().AcademicSubject.Title = "test";
-            ParametricUpdate(schoolClasses[0], new[] { "Title" }, new string[] { "Id", "PupilId", "AcademicSubjectId" });
+            //schoolClasses[0].Title = "6r";
+            //schoolClasses[0].Pupils.First().FirstName = "Igor_";
+            //schoolClasses[0].Pupils.First().PupilAcademicSubjects.First().AcademicSubject.Title = "test123";
+
+            //_appDBContext.Update(schoolClasses[0]);
+            //_appDBContext.SaveChanges();
+            //ParametricUpdate(schoolClasses[0], new[] { "Title" }, new string[] { "Id", "PupilId", "AcademicSubjectId" });
             #endregion
 
             if (academicSubject is not null)
@@ -151,10 +157,42 @@ namespace BLL.Services
             return item;
         }
 
-        public void ParametricUpdate(object item, string[] parameterNames, string[] idsName)
+        public void ParametricUpdate(object item, string[] parameterNames, string[] idsName = null)
         {
-            if (item is null)
-                return;
+            _ = item ?? throw new NullReferenceException($"{nameof(item)} is null");
+            _ = parameterNames ?? throw new NullReferenceException($"{nameof(parameterNames)} is null");
+            idsName ??=  new string[] { "Id" };
+            var transaction = _appDBContext.Database.BeginTransaction();
+            try
+            {
+                var type = item.GetType();
+                var tCast = typeof(IEnumerable);
+                if (type.IsGenericType && tCast.IsAssignableFrom(type.GetGenericTypeDefinition()) ||
+                    type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
+                {
+                    IEnumerable listObject = (IEnumerable)item;
+                    if (listObject != null)
+                    {
+                        foreach (object o in listObject)
+                        {
+                            _ParametricUpdate(o, parameterNames, idsName);
+                        }
+                    }
+                }
+                else
+                {
+                    _ParametricUpdate(item, parameterNames, idsName);
+                }
+                transaction.Commit();
+            }
+            catch(Exception  ex)
+            {
+                //_logger.LogWarning(ex, "ParametricUpdate");
+                throw ex;
+            }
+        }
+        private void _ParametricUpdate(object item, string[] parameterNames, string[] idsName)
+        {            
             _appDBContext.Attach(item);
             var type = item.GetType();
             var instanceName = type.GetAllPublicProperty().Except(
@@ -185,7 +223,7 @@ namespace BLL.Services
                     {
                         foreach (object o in listObject)
                         {
-                            ParametricUpdate(o, o.GetType().GetAllPublicProperty().ToArray(), idsName);
+                            _ParametricUpdate(o, o.GetType().GetAllPublicProperty().ToArray(), idsName);
                         }
                     }
                 }

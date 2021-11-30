@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
+using BLL.Services;
 using DAL.EF;
 using DAL.Entity;
 using Microsoft.EntityFrameworkCore;
@@ -8,70 +9,94 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace Benchmark.Benchmarks
 {
     [MemoryDiagnoser]
-    [SimpleJob(RunStrategy.ColdStart)]
+    [SimpleJob(RunStrategy.ColdStart, targetCount: 100)]
     [MinColumn, MaxColumn, MeanColumn, MedianColumn]
     public class UpdateBenchmark
     {
         private AppDBContext _appDBContext;
+        private QueryService _queryService;
         [GlobalSetup]
         public void GlobalSetup()
         {
             DbContextOptionsBuilder<AppDBContext> dbContextOptionsBuilder = new DbContextOptionsBuilder<AppDBContext>();
             dbContextOptionsBuilder.UseMySql(Program.connection, new MySqlServerVersion(new Version(8, 0, 27)));
             _appDBContext = new AppDBContext(dbContextOptionsBuilder.Options);
-
+            _queryService = new QueryService(_appDBContext);
         }
 
-        [Benchmark]
-        public void DifficultUpdate1()
+        private List<SchoolClass> Select()
         {
-            string studySubject_ = "Chemistry";
-            var schoolClasses = _appDBContext.SchoolClasses.Include(i => i.Pupils)
-                .ThenInclude(j=>j.PupilAcademicSubjects).ThenInclude(n=>n.AcademicSubject)
-                .ToList();
-            string newDescription = "learn about chemical";
-            AcademicSubject academicSubject = null;
-            schoolClasses.ForEach(i =>
-            {
-                foreach (var pupil in i.Pupils)//ICollection does not have ForEach function
-                {
-                    academicSubject = pupil.PupilAcademicSubjects
-                       .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
-                       .Select(n => n.AcademicSubject).FirstOrDefault();
-                    if (academicSubject is not null)
-                        break;
-                }
-            });
-            if (academicSubject is not null)
-            {
-                academicSubject.Description = newDescription;
-                _appDBContext.AcademicSubjects.Update(academicSubject);
-                _appDBContext.SaveChanges();
-            }
-        }
-
-        [Benchmark]
-        public void DifficultUpdate2()
-        {
-            string studySubject_ = "Chemistry";
-            var schoolClasses = _appDBContext.SchoolClasses.Include(i => i.Pupils)
+            return _appDBContext.SchoolClasses.Include(i => i.Pupils)
                 .ThenInclude(j => j.PupilAcademicSubjects).ThenInclude(n => n.AcademicSubject)
                 .ToList();
-            string newDescription = "learn about chemical";
-            AcademicSubject academicSubject = schoolClasses.Select(i => i.Pupils.Select(j => j.PupilAcademicSubjects
-                 .Where(i => i.AcademicSubject.Title.ToLower() == studySubject_.ToLower())
-                 .Select(k => k.AcademicSubject).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
-            if (academicSubject is not null)
+        }
+
+        public static string GetUniqueKeyOriginal_BIASED(int size)
+        {
+            char[] chars =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
+            byte[] data = new byte[size];
+            using (RNGCryptoServiceProvider crypto = new RNGCryptoServiceProvider())
             {
-                academicSubject.Description = newDescription;
-                _appDBContext.AcademicSubjects.Update(academicSubject);
-                _appDBContext.SaveChanges();
-            }            
-            
+                crypto.GetBytes(data);
+            }
+            StringBuilder result = new StringBuilder(size);
+            foreach (byte b in data)
+            {
+                result.Append(chars[b % (chars.Length)]);
+            }
+            return result.ToString();
+        }
+
+        private void Change(SchoolClass schoolClasse)
+        {
+            schoolClasse.Title = GetUniqueKeyOriginal_BIASED(4);
+            schoolClasse.Pupils.First().FirstName = GetUniqueKeyOriginal_BIASED(8);
+            schoolClasse.Pupils.First().PupilAcademicSubjects.First().AcademicSubject.Title 
+                = GetUniqueKeyOriginal_BIASED(14);
+        }
+
+        [Benchmark]
+        public void EFCoreUpdate()
+        {
+            var vs = Select();
+            Change(vs[0]);
+            _appDBContext.Update(vs[0]);
+            _appDBContext.SaveChanges();
+        }
+
+        [Benchmark]
+        public void MyUpdate()
+        {
+            var vs = Select();
+            Change(vs[0]);
+            _queryService.ParametricUpdate(vs[0], new[] { "Title", "Description" }, 
+                new string[] { "Id", "PupilId", "AcademicSubjectId" });
+        }
+
+        [Benchmark]
+        public void EFCoreUpdateRange()
+        {
+            var vs = Select();
+            Change(vs[0]);
+            Change(vs[1]);
+            _appDBContext.UpdateRange(vs);
+            _appDBContext.SaveChanges();
+        }
+
+        [Benchmark]
+        public void MyUpdateRange()
+        {
+            var vs = Select();
+            Change(vs[0]);
+            Change(vs[1]);
+            _queryService.ParametricUpdate(vs, new[] { "Title", "Description" },
+                new string[] { "Id", "PupilId", "AcademicSubjectId" });
         }
     }
 }
