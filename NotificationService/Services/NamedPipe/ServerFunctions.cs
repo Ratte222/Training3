@@ -1,5 +1,5 @@
 using System.Threading;
-using BLL.Interfaces;
+using NotificationService.Interfaces;
 using System;
 using Newtonsoft.Json;
 using DAL.Entity;
@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 using AuxiliaryLib.Helpers;
 using MongoDB.Driver;
 
-namespace BLL.Services.NamedPipe
+namespace NotificationService.Services.NamedPipe
 {
     public static class ServerFunctions
     {

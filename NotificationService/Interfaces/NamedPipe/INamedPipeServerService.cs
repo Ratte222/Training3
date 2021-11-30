@@ -1,7 +1,7 @@
-﻿using BLL.Helpers;
+﻿using NotificationService.Helpers;
 using System.Threading.Tasks;
 
-namespace BLL.Interfaces.NamedPipe
+namespace NotificationService.Interfaces.NamedPipe
 {
     public interface INamedPipeServerService
     {

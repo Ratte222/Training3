@@ -1,13 +1,13 @@
 using System.Threading;
 using System.Threading.Tasks;
-using BLL.Interfaces;
+using NotificationService.Interfaces;
 using DAL.Entity;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.EntityFrameworkCore;
 
-namespace BLL.Services
+namespace NotificationService.Services
 {
     public class ProblemNotificationsService:IProblemNotificationsService
     {

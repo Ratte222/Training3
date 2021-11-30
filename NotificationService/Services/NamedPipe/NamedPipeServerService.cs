@@ -1,6 +1,6 @@
-﻿using BLL.Interfaces;
-using BLL.Interfaces.NamedPipe;
-using BLL.Services.NamedPipe;
+﻿using NotificationService.Interfaces;
+using NotificationService.Interfaces.NamedPipe;
+using NotificationService.Services.NamedPipe;
 using DAL.Entity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -9,10 +9,10 @@ using System.IO;
 using System.IO.Pipes;
 using System.Text;
 using System.Threading;
-using BLL.Helpers;
+using NotificationService.Helpers;
 using System.Threading.Tasks;
 
-namespace BLL.Services.NamedPipe
+namespace NotificationService.Services.NamedPipe
 {
 
     //https://docs.microsoft.com/en-us/dotnet/standard/io/how-to-use-named-pipes-for-network-interprocess-communication?redirectedfrom=MSDN

@@ -1,11 +1,11 @@
-using BLL.Interfaces;
-using BLL.Services.NamedPipe;
+using NotificationService.Interfaces;
+using NotificationService.Services.NamedPipe;
 using System.Threading;
 using System;
 using Microsoft.Extensions.Logging;
 using DAL.Entity;
 
-namespace BLL.Helpers
+namespace NotificationService.Helpers
 {
     public struct IncomingDataForPipeServer
     {

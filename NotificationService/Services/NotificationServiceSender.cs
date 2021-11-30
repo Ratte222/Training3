@@ -1,4 +1,4 @@
-﻿using BLL.Interfaces;
+﻿using NotificationService.Interfaces;
 using DAL.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BLL.Services
+namespace NotificationService.Services
 {
     public class NotificationServiceSender: INotificationServiceSender
     {
@@ -91,36 +91,38 @@ namespace BLL.Services
             }
             if (taskResult.Status == TaskStatus.RanToCompletion)
             {
-                waitHandler.WaitOne();
-                _logger.LogDebug($"Notification sent, id = {notification.Id}");
-                notification.IsSend = true;
-                notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
-                waitHandler.Set();
+                PositiveResultSend(notification);                
             }
             else
             {
-                waitHandler.WaitOne();
-                _logger.LogDebug($"Notification not sent, id = {notification.Id}");
-                _logger.LogInformation(taskResult.Exception, $"Notification id = {notification.Id}");
-                notification.Exception.Type = taskResult.Exception.GetType().FullName;
-                notification.Exception.HResult = taskResult.Exception.HResult;
-                notification.Exception.Message = taskResult.Exception.Message;
-                notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
-                notification.NumberOfAttemptToSent++;                
-                waitHandler.Set();
+                NegativeResultSend(notification, taskResult.Exception);                
             }
             //_context.Notifications.Update(notification);
         }
 
         private void SendViaTelegram(Notification notification)
         {
-            var exceprion = new NotImplementedException();
+            var exception = new NotImplementedException();
+            NegativeResultSend(notification, exception);
+        }
+
+        private void PositiveResultSend(Notification notification)
+        {
+            waitHandler.WaitOne();
+            _logger.LogDebug($"Notification sent, id = {notification.Id}");
+            notification.IsSend = true;
+            notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
+            waitHandler.Set();
+        }
+
+        private void NegativeResultSend(Notification notification, Exception exception)
+        {
             waitHandler.WaitOne();
             _logger.LogDebug($"Notification not sent, id = {notification.Id}");
-            _logger.LogInformation(exceprion, $"Notification id = {notification.Id}");
-            notification.Exception.Type = exceprion.GetType().FullName;
-            notification.Exception.HResult = exceprion.HResult;
-            notification.Exception.Message = exceprion.Message;
+            _logger.LogInformation(exception, $"Notification id = {notification.Id}");
+            notification.Exception.Type = exception.GetType().FullName;
+            notification.Exception.HResult = exception.HResult;
+            notification.Exception.Message = exception.Message;
             notification.DateTimeOfTheLastAttemptToSend = DateTime.UtcNow;
             notification.NumberOfAttemptToSent++;
             waitHandler.Set();
