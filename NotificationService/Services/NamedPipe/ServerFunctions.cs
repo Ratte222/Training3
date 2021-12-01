@@ -2,7 +2,7 @@ using System.Threading;
 using NotificationService.Interfaces;
 using System;
 using Newtonsoft.Json;
-using DAL.Entity;
+using DAL_NS.Entity;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -25,7 +25,7 @@ namespace NotificationService.Services.NamedPipe
             //    filename, threadId, pipeServer.GetImpersonationUserName());
             Notification notification = JsonConvert.DeserializeObject<Notification>(JsonNotification);
             //notification.Id = Guid.NewGuid().ToString();
-            notification.DateTimeCreate = DateTime.UtcNow;
+            //notification.DateTimeCreate = DateTime.UtcNow;
             waitHandler.WaitOne();
             try
             {
@@ -91,11 +91,17 @@ namespace NotificationService.Services.NamedPipe
             ss.WriteString("I am the one true server!");
             if(ss.ReadString().Equals("Re_send"))
             {
-                var problemNotifications = notificationMongoRepository.GetQueryable().ToList();
+                int take = 0;
+                var query = notificationMongoRepository.GetQueryable();
+                if (int.TryParse(ss.ReadString(), out take))
+                    if (take > 0) { query = query.Take(take); }
+                var problemNotifications = query.ToList();
                 //TODO: check duplicate id
                 wainHandler.WaitOne();
                 try
                 {
+                    //TODO: add transaction
+                    notificationMongoRepository.DeleteManyAsync(problemNotifications);
                     problemNotifications.ForEach(n =>
                     {
                         n.NumberOfAttemptToSent = 0;
@@ -106,8 +112,7 @@ namespace NotificationService.Services.NamedPipe
                 finally
                 {
                     wainHandler.Set();
-                }
-                notificationMongoRepository.DeleteManyAsync(problemNotifications);
+                }                
                 ss.WriteString(ServiceAnswers.AnswerOk);
             }
 

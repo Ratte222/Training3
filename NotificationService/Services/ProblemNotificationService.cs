@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NotificationService.Interfaces;
-using DAL.Entity;
+using DAL_NS.Entity;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System;
@@ -43,6 +43,7 @@ namespace NotificationService.Services
                         .Include(i=>i.Credentials).Include(i => i.Exception).AsEnumerable();
                     if(problem_notifications.Count() > 0)
                     {
+                        //TODO: add transaction
                         await _notificationMongoRepository.AddRangeAsync(problem_notifications);
                         //with .AsNoTraking have errore: "The instance of entity type 'Notification' cannot be tracked because another instance with the same
                         //key value for {'Id'} is already being tracked. When attaching existing entities, ensure that only one

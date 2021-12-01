@@ -1,9 +1,9 @@
-﻿using DAL.Entity.Base;
+﻿using DAL_NS.Entity.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DAL.Entity
+namespace DAL_NS.Entity
 {
     public class NotificationException:BaseEntity<string>
     {
@@ -15,7 +15,7 @@ namespace DAL.Entity
 
         public NotificationException()
         {
-            Id = Guid.NewGuid().ToString();
+            //Id = Guid.NewGuid().ToString();
         }
     }
 }

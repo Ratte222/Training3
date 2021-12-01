@@ -1,5 +1,5 @@
 ﻿using NotificationService.Interfaces;
-using DAL.Entity;
+using DAL_NS.Entity;
 //using FluentEmail.Core;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -59,12 +59,10 @@ namespace NotificationService.Services
                     Body = body,
                     IsBodyHtml = false
                 };
-                using (SmtpClient smtp = new SmtpClient(credentials.SmtpHost, credentials.SmtpPort))
-                {
-                    smtp.Credentials = new NetworkCredential(credentials.Login, credentials.Password);
-                    smtp.EnableSsl = true;
-                    smtp.Send(msg);
-                }
+                using SmtpClient smtp = new SmtpClient(credentials.SmtpHost, credentials.SmtpPort);
+                smtp.Credentials = new NetworkCredential(credentials.Login, credentials.Password);
+                smtp.EnableSsl = true;
+                smtp.Send(msg);
             }
             catch (Exception ex)
             {

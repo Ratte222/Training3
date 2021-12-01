@@ -1,6 +1,7 @@
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.EF;
+using DAL_NS.EF;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Builder;
@@ -71,7 +72,10 @@ namespace Training3
             services.AddDbContext<AppDBContext>(options => options.UseMySql(connection/*, new MySqlServerVersion(new Version(8, 0, 27))*/),
                 ServiceLifetime.Transient);
 
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"));
+            //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"));
+            connection = "server=localhost;user=artur;password=12345678;database=trainingdb3_NS; AllowPublicKeyRetrieval=True;";
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection),
+                ServiceLifetime.Transient);
             #endregion
 
             #region Config
@@ -145,7 +149,7 @@ namespace Training3
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
-            services.AddScoped<INotificationService, NotificationService>();
+            //services.AddScoped<INotificationService, NotificationService>();
             services.AddTransient<INamedPipeClientService, NamedPipeClientService>();
 
             //services.AddHostedService<NotificationServiceBackground>();
@@ -156,7 +160,7 @@ namespace Training3
             QueueSystemDbContext queueSystemDbContext)
         {
             applicationContext.Database.Migrate();
-            DbInitializer.Initialize(applicationContext, 
+            DAL.EF.DbInitializer.Initialize(applicationContext, 
                 Configuration.GetSection("Categories").Get<List<Category>>(),
                 Configuration.GetSection("Expenses").Get<List<Expense>>());
             //var notifications = Configuration.GetSection("Notifications").Get<List<Notification>>();

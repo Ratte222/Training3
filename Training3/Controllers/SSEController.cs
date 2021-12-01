@@ -55,7 +55,7 @@ namespace Training3.Controllers
         void OnStreamAvailabe(Stream stream, CancellationToken requestAborted)
         {
             var wait = requestAborted.WaitHandle;
-            Action<Expense> handler = (expense) =>
+            void handler(Expense expense)
             {
                 StreamWriter writer = null;
                 try
@@ -68,7 +68,7 @@ namespace Training3.Controllers
                 {
                     writer.DisposeAsync().GetAwaiter();
                 }
-            };
+            }
             _expenseEvents.AddExpense += handler;
 
             wait.WaitOne();

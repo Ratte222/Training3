@@ -1,4 +1,5 @@
-﻿using DAL.EF;
+﻿//#define UseMySQL
+using DAL_NS.EF;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -16,20 +17,39 @@ using AuxiliaryLib.NamedPipe;
 using NotificationService.Helpers;
 using MongoDB.Bson;
 using NotificationService.Services.NamedPipe;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 
 namespace NotificationService
 {
-    public static class Startup
+    public class Startup
     {
-        private static string AppSettingsFileName = "appsettings.json";
-        public static void ConfigureService(ref ServiceProvider servicesProvider)
+        private string AppSettingsFileName = "appsettings.json";
+
+        private IConfiguration Configuration;
+
+        public Startup()
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .AddJsonFile(AppSettingsFileName);
+            Configuration = builder.Build();
+        }
+
+        public void ConfigureService(ref ServiceProvider servicesProvider)
         {
             //setup our DI
             var services = new ServiceCollection();
             services.AddLogging(configure => configure.AddSerilog());
             #region DatabaseConfiguration
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
+#if UseMySQL
+            string connection = Configuration.GetConnectionString("DefaultConnection");            
+            //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection), 
                 ServiceLifetime.Transient);
+#else
+services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
+                ServiceLifetime.Transient);
+#endif
             #endregion
             #region Configuration from appsettings
             if (!File.Exists(AppSettingsFileName))
@@ -49,7 +69,7 @@ namespace NotificationService
             parsedJson = JObject.Parse(content)["MongoDBSettings"];
             MongoDBSettings mongoDBSettings = parsedJson.ToObject<MongoDBSettings>();
             services.AddSingleton<MongoDBSettings>(mongoDBSettings);
-            #endregion
+#endregion
 
             //BsonDefaults.MaxSerializationDepth = 2;
             
@@ -77,7 +97,11 @@ namespace NotificationService
             services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
             services.AddScoped<IProblemNotificationsService, ProblemNotificationsService>();
             servicesProvider = services.BuildServiceProvider();
-            
+
+#if UseMySQL
+            var db = servicesProvider.GetService<QueueSystemDbContext>();
+            db.Database.Migrate();
+#endif
         }
     }
 }

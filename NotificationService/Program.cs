@@ -19,7 +19,8 @@ namespace NotificationService
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
                 .CreateLogger();
-            Startup.ConfigureService(ref serviceProvider);
+            Startup startup = new Startup();
+            startup.ConfigureService(ref serviceProvider);
             var logger = serviceProvider.GetService<ILogger<Program>>();
             try
             {

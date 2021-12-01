@@ -149,7 +149,7 @@ namespace BLL.Services.BaseService
 
         ~BaseService()
         {
-            disposed = !disposed ? Dispose(false) : true;
+            disposed = disposed || Dispose(false);
         }
 
         #endregion IDisposable

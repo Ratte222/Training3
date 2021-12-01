@@ -1,10 +1,10 @@
-﻿using DAL.Entity.Base;
+﻿using DAL_NS.Entity.Base;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace DAL.Entity
+namespace DAL_NS.Entity
 {
     public class Notification:BaseEntity<string>
     {
@@ -23,7 +23,7 @@ namespace DAL.Entity
 
         public Notification()
         {
-            Id = Guid.NewGuid().ToString();
+            //Id = Guid.NewGuid().ToString();
         }
     }
 

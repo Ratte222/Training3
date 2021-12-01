@@ -3,6 +3,7 @@ using BLL.Interfaces;
 using BLL.Interfaces.NamedPipe;
 using BLL.Services;
 using DAL.Entity;
+using DAL_NS.Entity;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,15 +18,15 @@ namespace Training3.Controllers
     [ApiController]
     public class TestNotificationController : ControllerBase
     {
-        private readonly INotificationService _notificationService;
+        //private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private readonly INamedPipeClientService _namedPipeClient;
 
-        public TestNotificationController(INotificationService notificationService, IMapper mapper,
+        public TestNotificationController(/*INotificationService notificationService,*/ IMapper mapper,
             INamedPipeClientService namedPipeClient)
         {
-            (_notificationService, _mapper, _namedPipeClient) =
-                (notificationService, mapper, namedPipeClient);
+            (_mapper, _namedPipeClient) =
+                (mapper, namedPipeClient);
         }
 
         [HttpPost]
@@ -53,9 +54,9 @@ namespace Training3.Controllers
         }
 
         [HttpGet("Re_sendProblemNotifications")]
-        public IActionResult Re_sendProblemNotifications()
+        public IActionResult Re_sendProblemNotifications(int? take)
         {
-            if (_namedPipeClient.Re_sendProblemNotifications())
+            if (_namedPipeClient.Re_sendProblemNotifications(take ?? -1))
                 return Ok();
             else
                 return StatusCode(500);

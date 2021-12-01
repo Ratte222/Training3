@@ -1,5 +1,5 @@
 ﻿using NotificationService.Interfaces;
-using DAL.Entity;
+using DAL_NS.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;

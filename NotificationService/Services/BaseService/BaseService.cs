@@ -1,7 +1,7 @@
 ﻿using AuxiliaryLib.Helpers;
 using NotificationService.Interfaces.Base;
-using DAL.EF;
-using DAL.Entity.Base;
+using DAL_NS.EF;
+using DAL_NS.Entity.Base;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -149,7 +149,7 @@ namespace NotificationService.Services.BaseService
 
         ~BaseService()
         {
-            disposed = !disposed ? Dispose(false) : true;
+            disposed = disposed || Dispose(false);
         }
 
         #endregion IDisposable

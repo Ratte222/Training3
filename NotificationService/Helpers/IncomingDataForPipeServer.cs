@@ -3,7 +3,7 @@ using NotificationService.Services.NamedPipe;
 using System.Threading;
 using System;
 using Microsoft.Extensions.Logging;
-using DAL.Entity;
+using DAL_NS.Entity;
 using AuxiliaryLib.NamedPipe;
 
 namespace NotificationService.Helpers

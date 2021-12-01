@@ -1,4 +1,4 @@
-﻿using DAL.Entity;
+﻿using DAL_NS.Entity;
 using System;
 using System.Collections.Generic;
 using System.Text;

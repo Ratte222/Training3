@@ -1,6 +1,6 @@
 ﻿using NotificationService.Helpers;
 using NotificationService.Interfaces;
-using DAL.Entity;
+using DAL_NS.Entity;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic; 

@@ -1,7 +1,7 @@
 ﻿using AuxiliaryLib.Helpers;
 using AuxiliaryLib.NamedPipe;
 using BLL.Interfaces.NamedPipe;
-using DAL.Entity;
+using DAL_NS.Entity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -72,7 +72,7 @@ namespace BLL.Services.NamedPipe
             return result;
         }
 
-        public bool Re_sendProblemNotifications()
+        public bool Re_sendProblemNotifications(int take)
         {
             bool result = false;
             var pipeClient =
@@ -87,6 +87,7 @@ namespace BLL.Services.NamedPipe
             if (ss.ReadString() == "I am the one true server!")
             {
                 ss.WriteString("Re_send");
+                ss.WriteString(take.ToString());
                 var res = ss.ReadString();
                 if (res.Equals(ServiceAnswers.AnswerOk))//all good
                 {

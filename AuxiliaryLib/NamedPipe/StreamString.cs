@@ -8,8 +8,8 @@ namespace AuxiliaryLib.NamedPipe
     // Defines the data protocol for reading and writing strings on our stream
     public class StreamString
     {
-        private Stream ioStream;
-        private UnicodeEncoding streamEncoding;
+        private readonly Stream ioStream;
+        private readonly UnicodeEncoding streamEncoding;
 
         public StreamString(Stream ioStream)
         {
@@ -19,7 +19,7 @@ namespace AuxiliaryLib.NamedPipe
 
         public string ReadString()
         {
-            int len = 0;
+            int len;
 
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
