@@ -60,6 +60,7 @@ namespace AuxiliaryLib.Extensions
             }
             catch (Exception ex)
             {
+                transaction.Rollback();
                 //_logger.LogWarning(ex, "ParametricUpdate");
                 throw ex;
             }

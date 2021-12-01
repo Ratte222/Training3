@@ -76,7 +76,7 @@ namespace Benchmark.Benchmarks
                 transaction.Commit();
             }
             catch
-            { }
+            { transaction.Rollback(); }
         }
 
         public void EFCoreUpdateTest(SchoolClass schoolClass)
@@ -88,7 +88,7 @@ namespace Benchmark.Benchmarks
                 _appDBContext.SaveChanges();
                 transaction.Commit();
             }
-            catch { }
+            catch { transaction.Rollback(); }
             
         }
 
@@ -102,7 +102,7 @@ namespace Benchmark.Benchmarks
                 _appDBContext.SaveChanges();
                 transaction.Commit();
             }
-            catch { }
+            catch { transaction.Rollback(); }
             
         }
 
@@ -119,7 +119,7 @@ namespace Benchmark.Benchmarks
                 _appDBContext.SaveChanges();
                 transaction.Commit();
             }
-            catch { }
+            catch { transaction.Rollback(); }
         }
 
         [Benchmark]
@@ -135,7 +135,7 @@ namespace Benchmark.Benchmarks
                 _appDBContext.SaveChanges();
                 transaction.Commit();
             }
-            catch { }
+            catch { transaction.Rollback(); }
         }
 
         [Benchmark]
