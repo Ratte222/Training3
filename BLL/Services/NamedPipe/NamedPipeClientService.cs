@@ -1,4 +1,5 @@
 ﻿using AuxiliaryLib.Helpers;
+using AuxiliaryLib.NamedPipe;
 using BLL.Interfaces.NamedPipe;
 using DAL.Entity;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ namespace BLL.Services.NamedPipe
                 }
                 catch (OverflowException ex)//most likely problems with the notification server
                 {
-                    _logger.LogWarning("Notification not processed by notification server");
+                    _logger.LogWarning(ex, "Notification not processed by notification server");
                 }
 
             }
@@ -87,7 +88,7 @@ namespace BLL.Services.NamedPipe
             {
                 ss.WriteString("Re_send");
                 var res = ss.ReadString();
-                if (res.Equals(ServerFunctions.AnswerOk))//all good
+                if (res.Equals(ServiceAnswers.AnswerOk))//all good
                 {
                     _logger.LogInformation(res);
                     result = true;
@@ -133,7 +134,7 @@ namespace BLL.Services.NamedPipe
                 }
                 catch (OverflowException ex)//most likely problems with the notification server
                 {
-                    _logger.LogWarning("Notification not processed by notification server");
+                    _logger.LogWarning(ex, "Notification not processed by notification server");
                 }
 
             }
@@ -165,7 +166,7 @@ namespace BLL.Services.NamedPipe
                     PageNumber = result.PageNumber });
                 ss.WriteString(paginateDataJson);
                 string problemNotificationsJson = ss.ReadString();
-                if (!problemNotificationsJson.Equals(ServerFunctions.AnswerNotFound))
+                if (!problemNotificationsJson.Equals(ServiceAnswers.AnswerNotFound))
                 {
                     result = JsonConvert.DeserializeObject<PageResponse<Notification>>(problemNotificationsJson);
                 }

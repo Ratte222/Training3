@@ -7,14 +7,15 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Newtonsoft.Json.Linq;
-using BLL.Services;
-using BLL.Interfaces;
+using NotificationService.Services;
+using NotificationService.Interfaces;
 using System.Net.Mail;
 using System.Net;
-using BLL.Interfaces.NamedPipe;
-using BLL.Services.NamedPipe;
-using BLL.Helpers;
+using NotificationService.Interfaces.NamedPipe;
+using AuxiliaryLib.NamedPipe;
+using NotificationService.Helpers;
 using MongoDB.Bson;
+using NotificationService.Services.NamedPipe;
 
 namespace NotificationService
 {
@@ -70,7 +71,7 @@ namespace NotificationService
             //#endregion
 
             services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<INotificationService, BLL.Services.NotificationService>();
+            services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
             services.AddTransient<INamedPipeServerService, NamedPipeServerService>();
             services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
             services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();

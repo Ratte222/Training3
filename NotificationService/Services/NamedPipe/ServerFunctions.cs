@@ -8,13 +8,12 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using AuxiliaryLib.Helpers;
 using MongoDB.Driver;
+using AuxiliaryLib.NamedPipe;
 
 namespace NotificationService.Services.NamedPipe
 {
     public static class ServerFunctions
-    {
-        public const string AnswerNotFound = "Not found";
-        public const string AnswerOk = "Ok";
+    {        
         public static bool AddNotification(AutoResetEvent waitHandler, INotificationService notificationService, StreamString ss,
             ILogger logger)
         {
@@ -81,7 +80,7 @@ namespace NotificationService.Services.NamedPipe
             }
             else
             {
-                ss.WriteString(ServerFunctions.AnswerNotFound);
+                ss.WriteString(ServiceAnswers.AnswerNotFound);
             }
             return result;
         }
@@ -109,7 +108,7 @@ namespace NotificationService.Services.NamedPipe
                     wainHandler.Set();
                 }
                 notificationMongoRepository.DeleteManyAsync(problemNotifications);
-                ss.WriteString(AnswerOk);
+                ss.WriteString(ServiceAnswers.AnswerOk);
             }
 
         }

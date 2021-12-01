@@ -1,10 +1,10 @@
-﻿using NotificationService.Interfaces.Base;
+﻿using BLL.Interfaces.Base;
 using DAL.Entity;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace NotificationService.Interfaces
+namespace BLL.Interfaces
 {
     public interface INotificationService:IBaseService<Notification, string>
     {

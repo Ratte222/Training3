@@ -1,12 +1,12 @@
-﻿using BLL.Interfaces;
-using BLL.Interfaces.NamedPipe;
-using BLL.Services.NamedPipe;
+﻿using NotificationService.Interfaces;
+using NotificationService.Interfaces.NamedPipe;
+using NotificationService.Services.NamedPipe;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.Threading;
-using BLL.Helpers;
+using NotificationService.Helpers;
 
 namespace NotificationService
 {

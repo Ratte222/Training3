@@ -4,6 +4,7 @@ using System.Threading;
 using System;
 using Microsoft.Extensions.Logging;
 using DAL.Entity;
+using AuxiliaryLib.NamedPipe;
 
 namespace NotificationService.Helpers
 {

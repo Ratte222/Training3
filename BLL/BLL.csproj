@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" Version="2.13.1" />
+    <ProjectReference Include="..\AuxiliaryLib\AuxiliaryLib.csproj" />
+    <ProjectReference Include="..\DAL\DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AuxiliaryLib\AuxiliaryLib.csproj" />
-    <ProjectReference Include="..\DAL\DAL.csproj" />
+    <PackageReference Include="MongoDB.Driver" Version="2.14.0" />
   </ItemGroup>
 
 </Project>

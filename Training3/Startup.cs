@@ -26,9 +26,9 @@ using System.IO.Compression;
 using DAL.Entity;
 using System.Net.Mail;
 using System.Net;
-using BLL.Helpers;
 using BLL.Interfaces.NamedPipe;
 using BLL.Services.NamedPipe;
+using BLL.Helpers;
 
 namespace Training3
 {

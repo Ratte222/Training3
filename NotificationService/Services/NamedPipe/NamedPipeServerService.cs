@@ -1,6 +1,6 @@
 ﻿using NotificationService.Interfaces;
 using NotificationService.Interfaces.NamedPipe;
-using NotificationService.Services.NamedPipe;
+using AuxiliaryLib.NamedPipe;
 using DAL.Entity;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

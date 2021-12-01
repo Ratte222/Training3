@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace BLL.Services.NamedPipe
+namespace AuxiliaryLib.NamedPipe
 {
     // Defines the data protocol for reading and writing strings on our stream
     public class StreamString
