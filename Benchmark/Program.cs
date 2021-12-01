@@ -11,6 +11,10 @@ namespace Benchmark
         {
             //UpdateBenchmark updateBenchmark = new UpdateBenchmark();
             //updateBenchmark.GlobalSetup();
+            //var schoolClasses = updateBenchmark.Select();
+            //updateBenchmark.Change(schoolClasses[0]);
+            //updateBenchmark.MyUpdateTest(schoolClasses[0]);
+            //updateBenchmark.EFCoreUpdateTest(schoolClasses[0]);
             //updateBenchmark.MyUpdate();
             //updateBenchmark.EFCoreUpdate();
             BenchmarkRunner.Run<UpdateBenchmark>();

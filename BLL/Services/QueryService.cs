@@ -119,116 +119,116 @@ namespace BLL.Services
 
         }
 
-        public TEntity ParametricUpdate<TEntity>(TEntity item, string[] parameterNames) where TEntity : class
-        {
-            if (item is null)
-                return null;
-            _appDBContext.Set<TEntity>().Attach(item);
-            var type = typeof(TEntity);
-            var instanceName = type.GetAllPublicProperty();
-            foreach (var parameterName in parameterNames)
-            {
-                if(instanceName.Any(i=>i.Equals(parameterName)))
-                    _appDBContext.Entry(item).Property(parameterName).IsModified = true;
-            }
-            var propertyInfos = type.GetAllPublicCollection();
-            foreach (var propertyInfo in propertyInfos)
-            {
-                var pT = propertyInfo.PropertyType;
-                var tCast = typeof(ICollection<>);
-                if(pT.IsGenericType && tCast.IsAssignableFrom(pT.GetGenericTypeDefinition()) ||
-                    pT.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
-                {
-                    IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
-                    if (listObject != null)
-                    {
-                        //_appDBContext.UpdateRange(listObject);
-                        foreach (object o in listObject)
-                        {
-                            //Type t = o.GetType();
-                            //_appDBContext.Update(o);
-                            _appDBContext.Attach(o);
+        //public TEntity ParametricUpdate<TEntity>(TEntity item, string[] parameterNames) where TEntity : class
+        //{
+        //    if (item is null)
+        //        return null;
+        //    _appDBContext.Set<TEntity>().Attach(item);
+        //    var type = typeof(TEntity);
+        //    var instanceName = type.GetAllPublicProperty();
+        //    foreach (var parameterName in parameterNames)
+        //    {
+        //        if(instanceName.Any(i=>i.Equals(parameterName)))
+        //            _appDBContext.Entry(item).Property(parameterName).IsModified = true;
+        //    }
+        //    var propertyInfos = type.GetAllPublicCollection();
+        //    foreach (var propertyInfo in propertyInfos)
+        //    {
+        //        var pT = propertyInfo.PropertyType;
+        //        var tCast = typeof(ICollection<>);
+        //        if(pT.IsGenericType && tCast.IsAssignableFrom(pT.GetGenericTypeDefinition()) ||
+        //            pT.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
+        //        {
+        //            IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
+        //            if (listObject != null)
+        //            {
+        //                //_appDBContext.UpdateRange(listObject);
+        //                foreach (object o in listObject)
+        //                {
+        //                    //Type t = o.GetType();
+        //                    //_appDBContext.Update(o);
+        //                    _appDBContext.Attach(o);
 
-                        }
-                    }
-                }                
-            }
-            _appDBContext.SaveChanges();
-            return item;
-        }
+        //                }
+        //            }
+        //        }                
+        //    }
+        //    _appDBContext.SaveChanges();
+        //    return item;
+        //}
 
-        public void ParametricUpdate(object item, string[] parameterNames, string[] idsName = null)
-        {
-            _ = item ?? throw new NullReferenceException($"{nameof(item)} is null");
-            _ = parameterNames ?? throw new NullReferenceException($"{nameof(parameterNames)} is null");
-            idsName ??=  new string[] { "Id" };
-            var transaction = _appDBContext.Database.BeginTransaction();
-            try
-            {
-                var type = item.GetType();
-                var tCast = typeof(IEnumerable);
-                if (type.IsGenericType && tCast.IsAssignableFrom(type.GetGenericTypeDefinition()) ||
-                    type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
-                {
-                    IEnumerable listObject = (IEnumerable)item;
-                    if (listObject != null)
-                    {
-                        foreach (object o in listObject)
-                        {
-                            _ParametricUpdate(o, parameterNames, idsName);
-                        }
-                    }
-                }
-                else
-                {
-                    _ParametricUpdate(item, parameterNames, idsName);
-                }
-                transaction.Commit();
-            }
-            catch(Exception  ex)
-            {
-                //_logger.LogWarning(ex, "ParametricUpdate");
-                throw ex;
-            }
-        }
-        private void _ParametricUpdate(object item, string[] parameterNames, string[] idsName)
-        {            
-            _appDBContext.Attach(item);
-            var type = item.GetType();
-            var instanceName = type.GetAllPublicProperty().Except(
-                type.GetAllPublicCollection().Select(i => i.Name).ToArray())
-                .Except(idsName);
-            foreach (var parameterName in parameterNames)
-            {
-                if (instanceName.Any(i => i.Equals(parameterName)))
-                {
-                    var itemParam = type.GetProperty(parameterName).GetValue(item, null);
-                    if (itemParam is not null)
-                    {
-                        if(!itemParam.GetType().IsClass)
-                            _appDBContext.Entry(item).Property(parameterName).IsModified = true;
-                    }
-                }
-            }
-            var propertyInfos = type.GetAllPublicCollection();
-            foreach (var propertyInfo in propertyInfos)
-            {
-                var pT = propertyInfo.PropertyType;
-                var tCast = typeof(ICollection<>);
-                if (pT.IsGenericType && tCast.IsAssignableFrom(pT.GetGenericTypeDefinition()) ||
-                    pT.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
-                {
-                    IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
-                    if (listObject != null)
-                    {
-                        foreach (object o in listObject)
-                        {
-                            _ParametricUpdate(o, o.GetType().GetAllPublicProperty().ToArray(), idsName);
-                        }
-                    }
-                }
-            }
-            _appDBContext.SaveChanges();
-        }
+        //public void ParametricUpdate(object item, string[] parameterNames, string[] idsName = null)
+        //{
+        //    _ = item ?? throw new NullReferenceException($"{nameof(item)} is null");
+        //    _ = parameterNames ?? throw new NullReferenceException($"{nameof(parameterNames)} is null");
+        //    idsName ??=  new string[] { "Id" };
+        //    var transaction = _appDBContext.Database.BeginTransaction();
+        //    try
+        //    {
+        //        var type = item.GetType();
+        //        var tCast = typeof(IEnumerable);
+        //        if (type.IsGenericType && tCast.IsAssignableFrom(type.GetGenericTypeDefinition()) ||
+        //            type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
+        //        {
+        //            IEnumerable listObject = (IEnumerable)item;
+        //            if (listObject != null)
+        //            {
+        //                foreach (object o in listObject)
+        //                {
+        //                    _ParametricUpdate(o, parameterNames, idsName);
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            _ParametricUpdate(item, parameterNames, idsName);
+        //        }
+        //        transaction.Commit();
+        //    }
+        //    catch(Exception  ex)
+        //    {
+        //        //_logger.LogWarning(ex, "ParametricUpdate");
+        //        throw ex;
+        //    }
+        //}
+        //private void _ParametricUpdate(object item, string[] parameterNames, string[] idsName)
+        //{            
+        //    _appDBContext.Attach(item);
+        //    var type = item.GetType();
+        //    var instanceName = type.GetAllPublicProperty().Except(
+        //        type.GetAllPublicCollection().Select(i => i.Name).ToArray())
+        //        .Except(idsName);
+        //    foreach (var parameterName in parameterNames)
+        //    {
+        //        if (instanceName.Any(i => i.Equals(parameterName)))
+        //        {
+        //            var itemParam = type.GetProperty(parameterName).GetValue(item, null);
+        //            if (itemParam is not null)
+        //            {
+        //                if(!itemParam.GetType().IsClass)
+        //                    _appDBContext.Entry(item).Property(parameterName).IsModified = true;
+        //            }
+        //        }
+        //    }
+        //    var propertyInfos = type.GetAllPublicCollection();
+        //    foreach (var propertyInfo in propertyInfos)
+        //    {
+        //        var pT = propertyInfo.PropertyType;
+        //        var tCast = typeof(ICollection<>);
+        //        if (pT.IsGenericType && tCast.IsAssignableFrom(pT.GetGenericTypeDefinition()) ||
+        //            pT.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == tCast))
+        //        {
+        //            IEnumerable listObject = (IEnumerable)propertyInfo.GetValue(item, null);
+        //            if (listObject != null)
+        //            {
+        //                foreach (object o in listObject)
+        //                {
+        //                    _ParametricUpdate(o, o.GetType().GetAllPublicProperty().ToArray(), idsName);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    //_appDBContext.SaveChanges();
+        //}
     }
 }
