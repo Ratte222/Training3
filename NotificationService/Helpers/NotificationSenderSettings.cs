@@ -11,5 +11,10 @@ namespace NotificationService.Helpers
         public int NumberOfAttemptToSentForPushToFile {get;set;}
         public int TimeOfTheLastAttemptToSendForPushToFile {get;set;}
         public int TimeAfterCreateForPushToFile {get;set;}
+        public bool StopProblemNotificationServiceAfterException { get; set; }
+        public bool SendMailIfProblemNotificationServiceHasException { get; set; }
+        public bool StopNotificationServiceSenderAfterException { get; set; }
+        public bool SendMailIfNotificationServiceSenderHasException { get; set; }
+        public string DeveloperEmail { get; set; }
     }
 }

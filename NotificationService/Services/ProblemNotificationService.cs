@@ -6,11 +6,17 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using FluentEmail.Core;
 
 namespace NotificationService.Services
 {
     public class ProblemNotificationsService:IProblemNotificationsService
     {
+        /// <summary>
+        /// email service to send exeption to the developer
+        /// </summary>
+        private readonly IFluentEmail _fluentEmail;
         private readonly ILogger<ProblemNotificationsService> _logger;
         private readonly INotificationMongoRepository _notificationMongoRepository;
         private readonly INotificationService _notificationService;
@@ -20,10 +26,11 @@ namespace NotificationService.Services
 
         public ProblemNotificationsService(ILogger<ProblemNotificationsService> logger,
             INotificationMongoRepository notificationMongoRepository, INotificationService notificationService,
-            INotificationSenderSettings notificationSenderSettings)
+            INotificationSenderSettings notificationSenderSettings, IFluentEmail fluentEmail)
         {
             (_logger, _notificationMongoRepository, _notificationService, _notificationSenderSettings)=
             (logger, notificationMongoRepository, notificationService, notificationSenderSettings);
+            _fluentEmail = fluentEmail;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
         }
@@ -55,7 +62,19 @@ namespace NotificationService.Services
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, $"Problem in {nameof(ProblemNotificationsService)}");
-                    break;
+                    if (_notificationSenderSettings.SendMailIfProblemNotificationServiceHasException)
+                    {
+                        try
+                        {
+                            _fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
+                                .Subject($"Exception in {nameof(ProblemNotificationsService)}")
+                                .Body(JsonConvert.SerializeObject(ex))
+                                .Send();
+                        }
+                        catch { }
+                    }
+                    if (_notificationSenderSettings.StopProblemNotificationServiceAfterException)
+                        break;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
                 if (_cancellationToken.IsCancellationRequested)

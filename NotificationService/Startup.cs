@@ -69,26 +69,26 @@ services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDataba
             parsedJson = JObject.Parse(content)["MongoDBSettings"];
             MongoDBSettings mongoDBSettings = parsedJson.ToObject<MongoDBSettings>();
             services.AddSingleton<MongoDBSettings>(mongoDBSettings);
-#endregion
+            #endregion
 
             //BsonDefaults.MaxSerializationDepth = 2;
-            
-            //#region FluentEmail_Smtp
-            //SmtpClient smtp = new SmtpClient
-            //{
-            //    //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
-            //    Host = emailConfiguration.SmtpHost,
-            //    Port = emailConfiguration.SmtpPort,
-            //    UseDefaultCredentials = true,
-            //    EnableSsl = true,
-            //    DeliveryMethod = SmtpDeliveryMethod.Network,
-            //    //Enter the user name and password of your sending SMTP server here
-            //    Credentials = new NetworkCredential(emailConfiguration.SmtpEmail, emailConfiguration.SmtpPassword)
-            //};
-            //services
-            //    .AddFluentEmail(emailConfiguration.SmtpEmail)
-            //    .AddSmtpSender(smtp); //configure host and port
-            //#endregion
+
+            #region FluentEmail_Smtp
+            SmtpClient smtp = new SmtpClient
+            {
+                //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
+                Host = emailConfiguration.SmtpHost,
+                Port = emailConfiguration.SmtpPort,
+                UseDefaultCredentials = true,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                //Enter the user name and password of your sending SMTP server here
+                Credentials = new NetworkCredential(emailConfiguration.SmtpEmail, emailConfiguration.SmtpPassword)
+            };
+            services
+                .AddFluentEmail(emailConfiguration.SmtpEmail)
+                .AddSmtpSender(smtp); //configure host and port
+            #endregion
 
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();

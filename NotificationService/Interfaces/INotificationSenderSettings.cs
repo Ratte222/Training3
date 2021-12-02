@@ -26,5 +26,11 @@ namespace NotificationService.Interfaces
         /// in minutes before a writing notification to a file  
         /// </summary>
         int TimeAfterCreateForPushToFile{get;set;}
+
+        bool StopProblemNotificationServiceAfterException { get; set; }
+        bool SendMailIfProblemNotificationServiceHasException { get; set; }
+        bool StopNotificationServiceSenderAfterException { get; set; }
+        bool SendMailIfNotificationServiceSenderHasException { get; set; }
+        string DeveloperEmail { get; set; }
     }
 }

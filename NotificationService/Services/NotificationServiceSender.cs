@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentEmail.Core;
+using Newtonsoft.Json;
 
 namespace NotificationService.Services
 {
@@ -15,6 +17,11 @@ namespace NotificationService.Services
     {
         private readonly ILogger<NotificationServiceSender> _logger;
         private readonly IEmailService _emailService;
+
+        /// <summary>
+        /// email service to send exeption to the developer
+        /// </summary>
+        private readonly IFluentEmail _fluentEmail;
         private readonly INotificationService _notificationService;
         private readonly INotificationSenderSettings _notificationSenderSettings;
         
@@ -23,10 +30,12 @@ namespace NotificationService.Services
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
 
         public NotificationServiceSender(ILogger<NotificationServiceSender> logger, IEmailService emailService,
-            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings)
+            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings,
+            IFluentEmail fluentEmail)
         {
             (_logger, _emailService, _notificationService, _notificationSenderSettings) = 
                 (logger, emailService, notificationService, notificationSenderSettings);
+            _fluentEmail = fluentEmail;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
         }
@@ -65,6 +74,19 @@ namespace NotificationService.Services
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "Problems sending notifications");
+                    if(_notificationSenderSettings.SendMailIfNotificationServiceSenderHasException)
+                    {
+                        try
+                        {
+                            _fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
+                                .Subject($"Exception in {nameof(NotificationServiceSender)}")
+                                .Body(JsonConvert.SerializeObject(ex))
+                                .Send();
+                        }
+                        catch { }
+                    }
+                    if (_notificationSenderSettings.StopNotificationServiceSenderAfterException)
+                        break;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
                 if (_cancellationToken.IsCancellationRequested)
