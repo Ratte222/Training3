@@ -69,12 +69,14 @@ namespace Training3
 
             #region DatabaseConfig
             string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDBContext>(options => options.UseMySql(connection/*, new MySqlServerVersion(new Version(8, 0, 27))*/),
+            services.AddDbContext<AppDBContext>(options => options.UseMySql(connection
+                , new MySqlServerVersion(new Version(8, 0, 27))),
                 ServiceLifetime.Transient);
 
             //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"));
             connection = "server=localhost;user=artur;password=12345678;database=trainingdb3_NS; AllowPublicKeyRetrieval=True;";
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection),
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection
+                , new MySqlServerVersion(new Version(8, 0, 27))),
                 ServiceLifetime.Transient);
             #endregion
 
