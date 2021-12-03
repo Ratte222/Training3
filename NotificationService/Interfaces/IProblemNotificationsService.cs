@@ -7,5 +7,6 @@ namespace NotificationService.Interfaces
     {
         void Stop();
         Task ExecuteAsync();
+        Task AddNotificationInQueue(int take);
     }
 }

@@ -9,11 +9,13 @@ using Newtonsoft.Json.Linq;
 using AuxiliaryLib.Helpers;
 using MongoDB.Driver;
 using AuxiliaryLib.NamedPipe;
+using System.Threading.Tasks;
 
 namespace NotificationService.Services.NamedPipe
 {
     public static class ServerFunctions
-    {        
+    {
+        public static event Func<int, Task> Re_sendProblemNotificationsEvent;
         public static bool AddNotification(AutoResetEvent waitHandler, INotificationService notificationService, StreamString ss,
             ILogger logger)
         {
@@ -92,27 +94,26 @@ namespace NotificationService.Services.NamedPipe
             if(ss.ReadString().Equals("Re_send"))
             {
                 int take = 0;
-                var query = notificationMongoRepository.GetQueryable();
+
                 if (int.TryParse(ss.ReadString(), out take))
-                    if (take > 0) { query = query.Take(take); }
-                var problemNotifications = query.ToList();
-                //TODO: check duplicate id
-                wainHandler.WaitOne();
-                try
-                {
-                    //TODO: add transaction
-                    notificationMongoRepository.DeleteManyAsync(problemNotifications);
-                    problemNotifications.ForEach(n =>
-                    {
-                        n.NumberOfAttemptToSent = 0;
-                        n.DateTimeOfTheLastAttemptToSend = null;
-                    });
-                    notificationService.CreateRangeAsync(problemNotifications).GetAwaiter();
-                }
-                finally
-                {
-                    wainHandler.Set();
-                }                
+
+                    Re_sendProblemNotificationsEvent?.Invoke(take).GetAwaiter();
+
+                //wainHandler.WaitOne();
+                //try
+                //{                    
+                //notificationMongoRepository.DeleteManyAsync(problemNotifications);
+                //problemNotifications.ForEach(n =>
+                //{
+                //    n.NumberOfAttemptToSent = 0;
+                //    n.DateTimeOfTheLastAttemptToSend = null;
+                //});
+                //notificationService.CreateRangeAsync(problemNotifications).GetAwaiter();
+                //}
+                //finally
+                //{
+                //    wainHandler.Set();
+                //}                
                 ss.WriteString(ServiceAnswers.AnswerOk);
             }
 

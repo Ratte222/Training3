@@ -6,7 +6,9 @@
     - https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-write-a-parallel-for-loop-with-thread-local-variables
     - https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-handle-exceptions-in-parallel-loops
     - https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/exception-handling-task-parallel-library
-
+- Mongo transaction 
+    - https://www.mongodb.com/developer/how-to/transactions-c-dotnet/
+    
 # How use
 Start Training3 and NotificationService.
 Use endpoint https://localhost:5001/api/TestNotification POST to create notification.

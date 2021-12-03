@@ -11,8 +11,10 @@ using FluentEmail.Core;
 
 namespace NotificationService.Services
 {
+    //https://www.mongodb.com/developer/how-to/transactions-c-dotnet/
     public class ProblemNotificationsService:IProblemNotificationsService
     {
+        private AutoResetEvent _waitHandler = new AutoResetEvent(true);
         /// <summary>
         /// email service to send exeption to the developer
         /// </summary>
@@ -39,8 +41,9 @@ namespace NotificationService.Services
         {
             //while (true)
             //{
+            _waitHandler.WaitOne();
             try
-            {                  
+            { 
                 var problem_notifications = _notificationService.GetAll()
                     .Where(i => i.IsSend == false)
                     .Where(i => i.NumberOfAttemptToSent > _notificationSenderSettings.NumberOfAttemptToSentForPushToFile)
@@ -51,21 +54,25 @@ namespace NotificationService.Services
                     .AsNoTracking().AsEnumerable();
                 if(problem_notifications.Count() > 0)
                 {
-                    var mongoHandle = await _notificationMongoRepository.StartSessionAsync();
-                    await _notificationService.StartTransactionAsync();
-                    try
-                    {
-                        await _notificationMongoRepository.AddRangeAsync(problem_notifications);
-                        await _notificationService.DeleteRangeAsync(problem_notifications);
-                        await mongoHandle.CommitTransactionAsync();
-                        await _notificationService.CommitTransactionAsync();
-                    }
-                    catch(Exception ex)
-                    {
-                        await mongoHandle.AbortTransactionAsync();
-                        await _notificationService.RollbackTransactionAsync();
-                        throw ex;
-                    }
+                    await _notificationMongoRepository.AddRangeAsync(problem_notifications);
+                    await _notificationService.DeleteRangeAsync(problem_notifications);
+                    //Standalone servers do not support transactions.
+                    //var mongoHandle = await _notificationMongoRepository.StartSessionAsync();
+                    //mongoHandle.StartTransaction();
+                    //await _notificationService.StartTransactionAsync();
+                    //try
+                    //{
+                    //    await _notificationMongoRepository.AddRangeAsync(problem_notifications);
+                    //    await _notificationService.DeleteRangeAsync(problem_notifications);
+                    //    await mongoHandle.CommitTransactionAsync();
+                    //    await _notificationService.CommitTransactionAsync();
+                    //}
+                    //catch(Exception ex)
+                    //{
+                    //    await mongoHandle.AbortTransactionAsync();
+                    //    await _notificationService.RollbackTransactionAsync();
+                    //    throw ex;
+                    //}
                 }
             }
             catch (Exception ex)
@@ -85,6 +92,10 @@ namespace NotificationService.Services
                 //if (_notificationSenderSettings.StopProblemNotificationServiceAfterException)
                 //    break;
             }
+            finally
+            {
+                _waitHandler.Set();
+            }
             //await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
             //if (_cancellationToken.IsCancellationRequested)
             //    break;
@@ -92,6 +103,30 @@ namespace NotificationService.Services
             //_logger.LogWarning($"{nameof(ProblemNotificationsService)} stoped!");
         }
 
+        public async Task AddNotificationInQueue(int take)
+        {
+            _waitHandler.WaitOne();
+            try
+            {
+                var query = _notificationMongoRepository.GetQueryable();
+                if (take > 0) { query = query.Take(take); }
+                var problemNotifications = query.ToList();
+
+                problemNotifications.ForEach(n =>
+                {
+                    n.NumberOfAttemptToSent = 0;
+                    n.DateTimeOfTheLastAttemptToSend = null;
+                });
+                //TODO: check duplicate id
+                await _notificationService.CreateRangeAsync(problemNotifications);
+                await _notificationMongoRepository.DeleteManyAsync(problemNotifications);
+            }
+            finally
+            {
+                _waitHandler.Set();
+            }
+            
+        }
 
         #region Dispose
         public void Stop()
