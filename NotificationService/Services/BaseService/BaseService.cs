@@ -108,7 +108,7 @@ namespace NotificationService.Services.BaseService
             //return pageResponse;
         }
 
-        public async Task UpdateRangeAsync(IEnumerable<TModel> items)
+        public virtual async Task UpdateRangeAsync(IEnumerable<TModel> items)
         {
             if (items is null)
                 return;
@@ -116,13 +116,16 @@ namespace NotificationService.Services.BaseService
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteRangeAsync(IEnumerable<TModel> items)
+        public virtual async Task DeleteRangeAsync(IEnumerable<TModel> items)
         {
             if (items is null)
                 return;
             _context.Set<TModel>().RemoveRange(items);
             await _context.SaveChangesAsync();
+            
         }
+
+        
 
         #region IDisposable
 

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentEmail.Core;
 using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NotificationService.Services
 {
@@ -33,8 +34,9 @@ namespace NotificationService.Services
             INotificationService notificationService, INotificationSenderSettings notificationSenderSettings,
             IFluentEmail fluentEmail)
         {
-            (_logger, _emailService, _notificationService, _notificationSenderSettings) = 
-                (logger, emailService, notificationService, notificationSenderSettings);
+            (_logger, _emailService,  _notificationSenderSettings) = 
+                (logger, emailService,  notificationSenderSettings);
+            _notificationService = notificationService;
             _fluentEmail = fluentEmail;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -49,12 +51,12 @@ namespace NotificationService.Services
         public async Task ExecuteAsync()
         {
             while (true)
-            {
+            {                
                 try
-                {
-                    var notifications = _notificationService.GetAll()//.AsNoTracking()
-                        .Where(i => i.IsSend == false).Include(i=>i.Credentials);
-                    //.ToList();
+                {                    
+                    var notifications = _notificationService.GetAll()
+                        .Where(i => i.IsSend == false).Include(i=>i.Exception)
+                        .Include(i => i.Credentials).AsNoTracking().ToArray();
                     Parallel.ForEach(notifications, notification =>
                     {
                         switch (notification.TypeNotification)
@@ -68,8 +70,28 @@ namespace NotificationService.Services
 
                         };
                     });
-                    var sent_notifications = notifications.Where(i => i.IsSend == true).AsEnumerable();
-                    await _notificationService.DeleteRangeAsync(sent_notifications);                    
+
+                    //for(int i = 0; i< notifications.Count(); i++)
+                    //{
+                    //    switch (notifications[i].TypeNotification)
+                    //    {
+                    //        case TypeNotification.Email:
+                    //            Mailing(notifications[i]);
+                    //            break;
+                    //        case TypeNotification.Telegram:
+                    //            SendViaTelegram(notifications[i]);
+                    //            break;
+
+                    //    };
+                    //}
+                    //await _notificationService.UpdateRangeAsync(notifications);
+                    var sent_notifications = notifications.Where(i => i.IsSend == true).ToArray();
+                    //var sent_notifications = _notificationService.GetAll_Queryable()
+                    //    .Where(i => i.IsSend == true).ToArray();
+                    //var temp = _notificationService.GetAll_Queryable().Include(i => i.Credentials);
+                    
+                    await _notificationService.DeleteRangeAsync(sent_notifications);
+                    
                 }
                 catch (Exception ex)
                 {
@@ -88,6 +110,10 @@ namespace NotificationService.Services
                     if (_notificationSenderSettings.StopNotificationServiceSenderAfterException)
                         break;
                 }
+                //finally
+                //{
+                //    notificationService.Dispose();
+                //}
                 await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
                 if (_cancellationToken.IsCancellationRequested)
                     break;

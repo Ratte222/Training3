@@ -115,14 +115,16 @@ namespace DAL_NS.Migrations
                 {
                     b.HasOne("DAL_NS.Entity.Notification", null)
                         .WithOne("Credentials")
-                        .HasForeignKey("DAL_NS.Entity.Credentials", "NotificationId");
+                        .HasForeignKey("DAL_NS.Entity.Credentials", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DAL_NS.Entity.NotificationException", b =>
                 {
                     b.HasOne("DAL_NS.Entity.Notification", null)
                         .WithOne("Exception")
-                        .HasForeignKey("DAL_NS.Entity.NotificationException", "NotificationId");
+                        .HasForeignKey("DAL_NS.Entity.NotificationException", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

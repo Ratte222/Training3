@@ -48,7 +48,7 @@ namespace DAL_NS.Migrations
                         column: x => x.NotificationId,
                         principalTable: "Notifications",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -69,7 +69,7 @@ namespace DAL_NS.Migrations
                         column: x => x.NotificationId,
                         principalTable: "Notifications",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

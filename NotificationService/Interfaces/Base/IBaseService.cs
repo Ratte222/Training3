@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NotificationService.Interfaces.Base
 {
-    public interface IBaseService<TModel, T> /*: IDisposable */where TModel : class
+    public interface IBaseService<TModel, T> : IDisposable where TModel : class
     {
         IEnumerable<TModel> GetAll_Enumerable();
         IQueryable<TModel> GetAll_Queryable();

@@ -29,16 +29,18 @@ namespace DAL_NS.EF
                 m.HasOne(n => n.Credentials)
                 //.WithOne(c => c.Notification)
                 .WithOne()
-                .HasForeignKey<Credentials>(c => c.NotificationId);
+                .HasForeignKey<Credentials>(c => c.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
                 m.HasOne(n => n.Exception)
                 //.WithOne(e => e.Notification)
                 .WithOne()
-                .HasForeignKey<NotificationException>(c => c.NotificationId);
+                .HasForeignKey<NotificationException>(c => c.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
             modelBuilder.Entity<Credentials>(m =>
             { 
                 m.HasKey(i => i.Id);
-                m.Property(p => p.Id).ValueGeneratedOnAdd();
+                m.Property(p => p.Id).ValueGeneratedOnAdd();                
             });
             modelBuilder.Entity<NotificationException>(m =>
             {

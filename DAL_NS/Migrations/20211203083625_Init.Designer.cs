@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL_NS.Migrations
 {
     [DbContext(typeof(QueueSystemDbContext))]
-    [Migration("20211201135120_Init")]
+    [Migration("20211203083625_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,14 +117,16 @@ namespace DAL_NS.Migrations
                 {
                     b.HasOne("DAL_NS.Entity.Notification", null)
                         .WithOne("Credentials")
-                        .HasForeignKey("DAL_NS.Entity.Credentials", "NotificationId");
+                        .HasForeignKey("DAL_NS.Entity.Credentials", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DAL_NS.Entity.NotificationException", b =>
                 {
                     b.HasOne("DAL_NS.Entity.Notification", null)
                         .WithOne("Exception")
-                        .HasForeignKey("DAL_NS.Entity.NotificationException", "NotificationId");
+                        .HasForeignKey("DAL_NS.Entity.NotificationException", "NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

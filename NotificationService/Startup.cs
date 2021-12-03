@@ -1,4 +1,4 @@
-﻿//#define UseMySQL
+﻿#define UseMySQL
 using DAL_NS.EF;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +44,8 @@ namespace NotificationService
 #if UseMySQL
             string connection = Configuration.GetConnectionString("DefaultConnection");            
             //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection), 
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection)
+            .EnableSensitiveDataLogging(true), 
                 ServiceLifetime.Transient);
 #else
 services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
