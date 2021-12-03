@@ -17,5 +17,6 @@ namespace NotificationService.Interfaces
         void ReplaceOneById(Notification notification);
         long Count(FilterDefinition<Notification> filterDefinition);
         Task DeleteManyAsync(IEnumerable<Notification> notifications);
+        Task<IClientSessionHandle> StartSessionAsync();
     }
 }

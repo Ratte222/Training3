@@ -125,7 +125,20 @@ namespace NotificationService.Services.BaseService
             
         }
 
-        
+        public virtual async Task StartTransactionAsync()
+        {
+           await _context.Database.BeginTransactionAsync();
+        }
+
+        public virtual async Task CommitTransactionAsync()
+        {
+            await _context.Database.CommitTransactionAsync();
+        }
+
+        public virtual async Task RollbackTransactionAsync()
+        {
+            await _context.Database.RollbackTransactionAsync();
+        }
 
         #region IDisposable
 

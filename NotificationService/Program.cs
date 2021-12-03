@@ -30,8 +30,9 @@ namespace NotificationService
                 INamedPipeServerService pipeServer_Re_sendProblemNotifications = serviceProvider.GetService<INamedPipeServerService>();
                 INamedPipeServerService pipeServer_CheckProblemNotification = serviceProvider.GetService<INamedPipeServerService>();
                 INamedPipeServerService pipeServer_UpdateProblemNotification = serviceProvider.GetService<INamedPipeServerService>();
+                notificationServiceSender.NeedCheckProblemNotification += problemNotificationsService.ExecuteAsync;
                 notificationServiceSender.ExecuteAsync();
-                problemNotificationsService.ExecuteAsync();
+                //problemNotificationsService.ExecuteAsync();
                 pipeServer_AddNotification.StartServiceAsync(new IncomingDataForPipeServer(){
                     pipeName = "notificationServiceAddNotificationToQueue",
                     func1 = ServerFunctions.AddNotification

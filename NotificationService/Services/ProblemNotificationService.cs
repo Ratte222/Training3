@@ -37,50 +37,59 @@ namespace NotificationService.Services
 
         public async Task ExecuteAsync()
         {
-            while (true)
-            {
-                try
-                {                  
-                    DateTime dateTime = DateTime.UtcNow;  
-                    var problem_notifications = _notificationService.GetAll()
-                        .Where(i=>((i.IsSend == false)&&(i.NumberOfAttemptToSent > _notificationSenderSettings.NumberOfAttemptToSentForPushToFile)
-                        && ((dateTime - i.DateTimeCreate)> TimeSpan.FromMinutes(_notificationSenderSettings.TimeAfterCreateForPushToFile))
-                        && i.DateTimeOfTheLastAttemptToSend.HasValue ? ((dateTime - i.DateTimeOfTheLastAttemptToSend.Value)<
-                        TimeSpan.FromMinutes(_notificationSenderSettings.TimeOfTheLastAttemptToSendForPushToFile)) : false))
-                        .Include(i=>i.Credentials).Include(i => i.Exception).AsEnumerable();
-                    if(problem_notifications.Count() > 0)
-                    {
-                        //TODO: add transaction
-                        await _notificationMongoRepository.AddRangeAsync(problem_notifications);
-                        //with .AsNoTraking have errore: "The instance of entity type 'Notification' cannot be tracked because another instance with the same
-                        //key value for {'Id'} is already being tracked. When attaching existing entities, ensure that only one
-                        //entity instance with a given key value is attached. Consider using
-                        //'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values."
-                        await _notificationService.DeleteRangeAsync(problem_notifications);
-                    }
-                }
-                catch (Exception ex)
+            //while (true)
+            //{
+            try
+            {                  
+                var problem_notifications = _notificationService.GetAll()
+                    .Where(i => i.IsSend == false)
+                    .Where(i => i.NumberOfAttemptToSent > _notificationSenderSettings.NumberOfAttemptToSentForPushToFile)
+                    .Where(i => i.DateTimeCreate < DateTime.UtcNow.AddMinutes(_notificationSenderSettings.TimeAfterCreateForPushToFile * -1))
+                    //.Where(i => i.DateTimeOfTheLastAttemptToSend.HasValue ? ((dateTime - i.DateTimeOfTheLastAttemptToSend.Value) <
+                    //TimeSpan.FromMinutes(_notificationSenderSettings.TimeOfTheLastAttemptToSendForPushToFile)) : false)
+                    .Include(i=>i.Credentials).Include(i => i.Exception)
+                    .AsNoTracking().AsEnumerable();
+                if(problem_notifications.Count() > 0)
                 {
-                    _logger.LogWarning(ex, $"Problem in {nameof(ProblemNotificationsService)}");
-                    if (_notificationSenderSettings.SendMailIfProblemNotificationServiceHasException)
+                    var mongoHandle = await _notificationMongoRepository.StartSessionAsync();
+                    await _notificationService.StartTransactionAsync();
+                    try
                     {
-                        try
-                        {
-                            _fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
-                                .Subject($"Exception in {nameof(ProblemNotificationsService)}")
-                                .Body(JsonConvert.SerializeObject(ex))
-                                .Send();
-                        }
-                        catch { }
+                        await _notificationMongoRepository.AddRangeAsync(problem_notifications);
+                        await _notificationService.DeleteRangeAsync(problem_notifications);
+                        await mongoHandle.CommitTransactionAsync();
+                        await _notificationService.CommitTransactionAsync();
                     }
-                    if (_notificationSenderSettings.StopProblemNotificationServiceAfterException)
-                        break;
+                    catch(Exception ex)
+                    {
+                        await mongoHandle.AbortTransactionAsync();
+                        await _notificationService.RollbackTransactionAsync();
+                        throw ex;
+                    }
                 }
-                await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
-                if (_cancellationToken.IsCancellationRequested)
-                    break;
             }
-            _logger.LogWarning($"{nameof(ProblemNotificationsService)} stoped!");
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Problem in {nameof(ProblemNotificationsService)}");
+                if (_notificationSenderSettings.SendMailIfProblemNotificationServiceHasException)
+                {
+                    try
+                    {
+                        _fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
+                            .Subject($"Exception in {nameof(ProblemNotificationsService)}")
+                            .Body(JsonConvert.SerializeObject(ex))
+                            .Send();
+                    }
+                    catch { }
+                }
+                //if (_notificationSenderSettings.StopProblemNotificationServiceAfterException)
+                //    break;
+            }
+            //await Task.Delay(TimeSpan.FromSeconds(_notificationSenderSettings.SleepTimeNotification), _cancellationToken);
+            //if (_cancellationToken.IsCancellationRequested)
+            //    break;
+            //}
+            //_logger.LogWarning($"{nameof(ProblemNotificationsService)} stoped!");
         }
 
 

@@ -17,10 +17,14 @@ namespace NotificationService.Services
 
         public override Task DeleteRangeAsync(IEnumerable<Notification> items)
         {
-            //_context.ChangeTracker.Clear();
+            _context.ChangeTracker.Clear();
             return base.DeleteRangeAsync(items);
         }
 
-        
+        public override Task UpdateRangeAsync(IEnumerable<Notification> items)
+        {
+            _context.ChangeTracker.Clear();
+            return base.UpdateRangeAsync(items);
+        }
     }
 }

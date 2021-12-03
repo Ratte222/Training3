@@ -8,6 +8,7 @@ namespace NotificationService.Interfaces
 {
     public interface INotificationServiceSender:IDisposable
     {
+        event Func<Task> NeedCheckProblemNotification;
         void Stop();
         Task ExecuteAsync();
 

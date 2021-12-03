@@ -16,6 +16,8 @@ namespace NotificationService.Services
 {
     public class NotificationServiceSender: INotificationServiceSender
     {
+        public event Func<Task> NeedCheckProblemNotification;
+
         private readonly ILogger<NotificationServiceSender> _logger;
         private readonly IEmailService _emailService;
 
@@ -86,12 +88,13 @@ namespace NotificationService.Services
                     //}
                     //await _notificationService.UpdateRangeAsync(notifications);
                     var sent_notifications = notifications.Where(i => i.IsSend == true).ToArray();
+
                     //var sent_notifications = _notificationService.GetAll_Queryable()
                     //    .Where(i => i.IsSend == true).ToArray();
                     //var temp = _notificationService.GetAll_Queryable().Include(i => i.Credentials);
-                    
+                    await _notificationService.UpdateRangeAsync(notifications.Except(sent_notifications));
                     await _notificationService.DeleteRangeAsync(sent_notifications);
-                    
+                    await NeedCheckProblemNotification?.Invoke();
                 }
                 catch (Exception ex)
                 {

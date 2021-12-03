@@ -22,5 +22,8 @@ namespace NotificationService.Interfaces.Base
         void Delete(T id);
         Task DeleteRangeAsync(IEnumerable<TModel> items);
         bool IsExists(T id);
+        Task StartTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

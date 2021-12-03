@@ -44,7 +44,8 @@ namespace NotificationService
 #if UseMySQL
             string connection = Configuration.GetConnectionString("DefaultConnection");            
             //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection)
+            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
+                new MySqlServerVersion(new Version(8, 0, 27)))
             .EnableSensitiveDataLogging(true), 
                 ServiceLifetime.Transient);
 #else

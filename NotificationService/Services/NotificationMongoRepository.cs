@@ -15,13 +15,16 @@ namespace NotificationService.Services
         //https://dev.to/mpetrinidev/a-guide-to-bulk-write-operations-in-mongodb-with-c-51fk
         private readonly MongoDBSettings _mongoDBSettings;
         private readonly IMongoCollection<Notification> _notificationCollection;
+        private readonly IMongoDatabase _mongoDatabase;
+        private readonly MongoClient _mongoClient;
 
         public NotificationMongoRepository(MongoDBSettings mongoDBSettings)
         {
             _mongoDBSettings = mongoDBSettings;
-            var client = new MongoClient(mongoDBSettings.ConnectionString);
-            var database = client.GetDatabase(mongoDBSettings.DatabaseName);
-            _notificationCollection = database.GetCollection<Notification>(mongoDBSettings.NotificationDatabaseName);            
+            _mongoClient = new MongoClient(mongoDBSettings.ConnectionString);
+            _mongoDatabase = _mongoClient.GetDatabase(mongoDBSettings.DatabaseName);
+            _notificationCollection = 
+                _mongoDatabase.GetCollection<Notification>(mongoDBSettings.NotificationDatabaseName);            
         }
         public async Task AddRangeAsync(IEnumerable<Notification> notifications)
         {
@@ -77,5 +80,25 @@ namespace NotificationService.Services
         {
             return _notificationCollection.CountDocuments(filterDefinition);
         }
+
+        public async Task<IClientSessionHandle> StartSessionAsync()
+        {
+            return await _mongoClient.StartSessionAsync();
+        }
+
+        //public void BeginTransaction(IClientSessionHandle handle)
+        //{
+        //    handle.StartTransaction();
+        //}
+
+        //public async Task CommitTransactionAsync(IClientSessionHandle handle)
+        //{
+        //    await handle.CommitTransactionAsync();
+        //}
+
+        //public async Task AbortTransactionAsync(IClientSessionHandle handle)
+        //{
+        //    await handle.AbortTransactionAsync();
+        //}
     }
 }
