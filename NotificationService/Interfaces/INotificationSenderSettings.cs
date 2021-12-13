@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NotificationService.Constants;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,5 +33,6 @@ namespace NotificationService.Interfaces
         bool StopNotificationServiceSenderAfterException { get; set; }
         bool SendMailIfNotificationServiceSenderHasException { get; set; }
         string DeveloperEmail { get; set; }
+        QueueDatabaseType QueueDatabaseType { get; set; }
     }
 }

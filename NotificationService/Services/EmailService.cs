@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace NotificationService.Services
 {
@@ -38,7 +39,7 @@ namespace NotificationService.Services
             _logger.LogDebug($"Send notification to: {to}, \r\nheader: {header}, body: {body}");
             #if DEBUG
             Random random = new Random();
-            await Task.Delay(random.Next(500, 1000));
+            Thread.Sleep(random.Next(500, 1000));
             if (random.Next(0, 9) <= 7)//20 percent failed send
                 return;
             else

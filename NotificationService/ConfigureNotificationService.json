@@ -1,0 +1,14 @@
+{
+  "NotificationSenderSettings": {
+    "SleepTimeNotification": 10,
+    "NumberOfAttemptToSentForPushToFile": 1,
+    "TimeOfTheLastAttemptToSendForPushToFile": 1,
+    "TimeAfterCreateForPushToFile": 1,
+    "StopProblemNotificationServiceAfterException": true,
+    "SendMailIfProblemNotificationServiceHasException": true,
+    "StopNotificationServiceSenderAfterException": true,
+    "SendMailIfNotificationServiceSenderHasException": true,
+    "DeveloperEmail": "artur@gmail.com",
+    "QueueDatabaseType" : 0
+  }
+}

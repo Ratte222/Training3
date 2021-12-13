@@ -19,19 +19,21 @@ using MongoDB.Bson;
 using NotificationService.Services.NamedPipe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
+using NotificationService.Constants;
 
 namespace NotificationService
 {
     public class Startup
     {
         private const string AppSettingsFileName = "appsettings.json";
+        private const string ConfigureNotificationServiceFileName = "ConfigureNotificationService.json";
 
         private readonly IConfiguration Configuration;
 
         public Startup()
         {
             IConfigurationBuilder builder = new ConfigurationBuilder()
-                .AddJsonFile(AppSettingsFileName);
+                .AddJsonFile(AppSettingsFileName).AddJsonFile(ConfigureNotificationServiceFileName);
             Configuration = builder.Build();
         }
 
@@ -40,38 +42,59 @@ namespace NotificationService
             //setup our DI
             var services = new ServiceCollection();
             services.AddLogging(configure => configure.AddSerilog());
-            #region DatabaseConfiguration
-#if UseMySQL
-            string connection = Configuration.GetConnectionString("QueueSystem");            
-            //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
-            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
-                new MySqlServerVersion(new Version(8, 0, 27)))
-            .EnableSensitiveDataLogging(true), 
-                ServiceLifetime.Transient);
-#else
-services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
-                ServiceLifetime.Transient);
-#endif
-            #endregion
-            #region Configuration from appsettings
-            if (!File.Exists(AppSettingsFileName))
-            {
-                throw new Exception($"file {AppSettingsFileName} does not exist");
-            }
-            string content = File.ReadAllText(AppSettingsFileName);
-            //TODO: use Microsoft.Extensions.Configuration
-            JToken parsedJson = JObject.Parse(content)["EmailConfiguration"];
-            EmailConfiguration emailConfiguration = parsedJson.ToObject<EmailConfiguration>();
+            #region Configuration from setting files
+            EmailConfiguration emailConfiguration = Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
             services.AddSingleton<IEmailConfiguration>(emailConfiguration);
+            NotificationSenderSettings notificationSenderSettings
+                = Configuration.GetSection("NotificationSenderSettings").Get<NotificationSenderSettings>();
+            services.AddSingleton<INotificationSenderSettings>(
+                notificationSenderSettings);
+            services.AddSingleton<MongoDBSettings>(
+                Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>());
+            //if (!File.Exists(AppSettingsFileName))
+            //{
+            //    throw new Exception($"file {AppSettingsFileName} does not exist");
+            //}
+            //string content = File.ReadAllText(AppSettingsFileName);
+            ////TODO: use Microsoft.Extensions.Configuration
+            //JToken parsedJson = JObject.Parse(content)["EmailConfiguration"];
+            //EmailConfiguration emailConfiguration = parsedJson.ToObject<EmailConfiguration>();
+            //services.AddSingleton<IEmailConfiguration>(emailConfiguration);
 
-            parsedJson = JObject.Parse(content)["NotificationSenderSettings"];
-            NotificationSenderSettings notificationSenderSettings = parsedJson.ToObject<NotificationSenderSettings>();
-            services.AddSingleton<INotificationSenderSettings>(notificationSenderSettings);
+            //parsedJson = JObject.Parse(content)["NotificationSenderSettings"];
+            //NotificationSenderSettings notificationSenderSettings = parsedJson.ToObject<NotificationSenderSettings>();
+            //services.AddSingleton<INotificationSenderSettings>(notificationSenderSettings);
 
-            parsedJson = JObject.Parse(content)["MongoDBSettings"];
-            MongoDBSettings mongoDBSettings = parsedJson.ToObject<MongoDBSettings>();
-            services.AddSingleton<MongoDBSettings>(mongoDBSettings);
+            //parsedJson = JObject.Parse(content)["MongoDBSettings"];
+            //MongoDBSettings mongoDBSettings = parsedJson.ToObject<MongoDBSettings>();
+            //services.AddSingleton<MongoDBSettings>(mongoDBSettings);
             #endregion
+            #region DatabaseConfiguration
+//#if UseMySQL
+//            string connection = Configuration.GetConnectionString("QueueSystem");            
+//            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
+//                new MySqlServerVersion(new Version(8, 0, 27)))
+//            .EnableSensitiveDataLogging(true), 
+//                ServiceLifetime.Transient);
+//#else
+//services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
+//                ServiceLifetime.Transient);
+//#endif
+            if(notificationSenderSettings.QueueDatabaseType == QueueDatabaseType.MySQL)
+            {
+                string connection = Configuration.GetConnectionString("MySQL");
+                services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
+                    new MySqlServerVersion(new Version(8, 0, 27)))
+                    .EnableSensitiveDataLogging(true),
+                    ServiceLifetime.Transient);
+            }
+            else if (notificationSenderSettings.QueueDatabaseType == QueueDatabaseType.InMemory)
+            {
+                services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"),
+                    ServiceLifetime.Transient);
+            }
+            #endregion
+
 
             //BsonDefaults.MaxSerializationDepth = 2;
 
@@ -100,10 +123,13 @@ services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDataba
             services.AddScoped<IProblemNotificationsService, ProblemNotificationsService>();
             servicesProvider = services.BuildServiceProvider();
 
-#if UseMySQL
-            var db = servicesProvider.GetService<QueueSystemDbContext>();
-            db.Database.Migrate();
-#endif
+            //#if UseMySQL
+            if (notificationSenderSettings.QueueDatabaseType == QueueDatabaseType.MySQL)
+            {
+                var db = servicesProvider.GetService<QueueSystemDbContext>();
+                db.Database.Migrate();
+            }
+            //#endif
         }
     }
 }
