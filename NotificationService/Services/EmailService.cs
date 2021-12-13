@@ -19,55 +19,52 @@ namespace NotificationService.Services
         //private readonly IFluentEmail _singleEmail;
         private readonly ILogger<EmailService> _logger;
         
-        public EmailService(/*IFluentEmail singleEmail, */ILogger<EmailService> logger)
+        public EmailService(ILogger<EmailService> logger)
         {
-            (/*_singleEmail, */_logger) = (/*singleEmail, */logger);
+            _logger = logger;
         }
 
-        public async Task SendAsync(string to, string header, string body, Credentials credentials)
+        public async Task SendAsync(string to, string header, string body, Credentials credentials, MailSettings mailSettings)
         {
-            if (string.IsNullOrEmpty(to))
-                throw new ArgumentNullException($"{nameof(to)} is null or empty");
-            if (string.IsNullOrEmpty(header))
-                throw new ArgumentNullException($"{nameof(header)} is null or empty");
-            if (string.IsNullOrEmpty(body))
-                throw new ArgumentNullException($"{nameof(body)} is null or empty");
-            if (credentials is null)
-                throw new ArgumentNullException($"{nameof(credentials)} is null");
-            if (string.IsNullOrEmpty(credentials.Login))
-                throw new ArgumentNullException($"{nameof(credentials.Login)} is null or empty");
-            if (string.IsNullOrEmpty(credentials.Password))
-                throw new ArgumentNullException($"{nameof(credentials.Password)} is null or empty");
-            if (string.IsNullOrEmpty(credentials.SmtpHost))
-                throw new ArgumentNullException($"{nameof(credentials.SmtpHost)} is null or empty");
+            _ = to ?? throw new ArgumentNullException($"{nameof(to)} is null or empty");
+            _ = header ?? throw new ArgumentNullException($"{nameof(header)} is null or empty");
+            _ = body ?? throw new ArgumentNullException($"{nameof(body)} is null or empty");
+            _ = credentials ?? throw new ArgumentNullException($"{nameof(credentials)} is null");
+            _ = credentials.Login ?? throw new ArgumentNullException($"{nameof(credentials.Login)} is null or empty");
+            _ = credentials.Password ?? throw new ArgumentNullException($"{nameof(credentials.Password)} is null or empty");
+            _ = credentials.SmtpHost ?? throw new ArgumentNullException($"{nameof(credentials.SmtpHost)} is null or empty");
+            _ = mailSettings ?? throw new ArgumentNullException($"{nameof(mailSettings)} is null or empty");
+            _ = mailSettings.DisplayName ?? throw new ArgumentNullException($"{nameof(mailSettings.DisplayName)} is null or empty");
             _logger.LogDebug($"Send notification to: {to}, \r\nheader: {header}, body: {body}");
-            #region Debug
+            #if DEBUG
             Random random = new Random();
             await Task.Delay(random.Next(500, 1000));
             if (random.Next(0, 9) <= 7)//20 percent failed send
                 return;
             else
                 throw new Exception();
-            #endregion
+            #else
             try
             {
-                var from_ = new MailAddress(credentials.Login, "VRealSoft");
+                var from_ = new MailAddress(credentials.Login, mailSettings.DisplayName/*"VRealSoft"*/);
                 var to_ = new MailAddress(credentials.Login);
                 var msg = new MailMessage(from_, to_)
                 {
                     Subject = header,
                     Body = body,
-                    IsBodyHtml = false
+                    IsBodyHtml = mailSettings.IsBodyHtml
                 };
                 using SmtpClient smtp = new SmtpClient(credentials.SmtpHost, credentials.SmtpPort);
                 smtp.Credentials = new NetworkCredential(credentials.Login, credentials.Password);
-                smtp.EnableSsl = true;
-                smtp.Send(msg);
+                smtp.EnableSsl = mailSettings.EnableSsl;
+                
+                await smtp.SendMailAsync(msg);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+#endif
         }
 
         //public async Task SendAsync(string to, string header, string body)

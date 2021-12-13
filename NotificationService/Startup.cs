@@ -24,9 +24,9 @@ namespace NotificationService
 {
     public class Startup
     {
-        private string AppSettingsFileName = "appsettings.json";
+        private const string AppSettingsFileName = "appsettings.json";
 
-        private IConfiguration Configuration;
+        private readonly IConfiguration Configuration;
 
         public Startup()
         {
@@ -42,7 +42,7 @@ namespace NotificationService
             services.AddLogging(configure => configure.AddSerilog());
             #region DatabaseConfiguration
 #if UseMySQL
-            string connection = Configuration.GetConnectionString("DefaultConnection");            
+            string connection = Configuration.GetConnectionString("QueueSystem");            
             //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
             services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
                 new MySqlServerVersion(new Version(8, 0, 27)))

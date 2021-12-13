@@ -9,7 +9,7 @@ namespace NotificationService.Interfaces
     public interface IEmailService
     {
         //Task SendAsync(string to, string heading, string body);
-        Task SendAsync(string to, string heading, string body, Credentials credentials);
+        Task SendAsync(string to, string heading, string body, Credentials credentials, MailSettings mailSettings);
         void Send(string to, string heading, string body);
     }
 }

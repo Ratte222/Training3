@@ -58,7 +58,7 @@ namespace NotificationService.Services
                 {                    
                     var notifications = _notificationService.GetAll()
                         .Where(i => i.IsSend == false).Include(i=>i.Exception)
-                        .Include(i => i.Credentials).AsNoTracking().ToArray();
+                        .Include(i => i.Credentials).Include(i=>i.MailSettings).AsNoTracking().ToArray();
                     Parallel.ForEach(notifications, notification =>
                     {
                         switch (notification.TypeNotification)
@@ -131,7 +131,8 @@ namespace NotificationService.Services
             //Task taskResult = _emailService.Send(notification.Sender,
             //    notification.Recipient, notification.Heading, notification.MessageBody);
             Task taskResult = _emailService.SendAsync(
-                notification.Recipient, notification.Header, notification.MessageBody, notification.Credentials);
+                notification.Recipient, notification.Header, notification.MessageBody, 
+                notification.Credentials, notification.MailSettings);
             try//just in case
             {
                 taskResult.Wait();

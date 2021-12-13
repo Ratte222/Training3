@@ -36,6 +36,10 @@ namespace DAL_NS.EF
                 .WithOne()
                 .HasForeignKey<NotificationException>(c => c.NotificationId)
                 .OnDelete(DeleteBehavior.Cascade);
+                m.HasOne(n => n.MailSettings)
+                .WithOne()
+                .HasForeignKey<MailSettings>(c => c.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
             modelBuilder.Entity<Credentials>(m =>
             { 
@@ -43,6 +47,11 @@ namespace DAL_NS.EF
                 m.Property(p => p.Id).ValueGeneratedOnAdd();                
             });
             modelBuilder.Entity<NotificationException>(m =>
+            {
+                m.HasKey(i => i.Id);
+                m.Property(p => p.Id).ValueGeneratedOnAdd();
+            });
+            modelBuilder.Entity<MailSettings>(m =>
             {
                 m.HasKey(i => i.Id);
                 m.Property(p => p.Id).ValueGeneratedOnAdd();

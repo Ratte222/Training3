@@ -74,7 +74,7 @@ namespace Training3
                 ServiceLifetime.Transient);
 
             //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"));
-            connection = "server=localhost;user=artur;password=12345678;database=trainingdb3_NS; AllowPublicKeyRetrieval=True;";
+            connection = Configuration.GetConnectionString("QueueSystem");
             services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection
                 , new MySqlServerVersion(new Version(8, 0, 27))),
                 ServiceLifetime.Transient);

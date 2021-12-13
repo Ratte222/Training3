@@ -20,6 +20,7 @@ namespace DAL_NS.Entity
     
         public Credentials Credentials { get; set; }
         public NotificationException Exception { get; set; } = new NotificationException();
+        public MailSettings MailSettings { get; set; }
 
         public Notification()
         {
