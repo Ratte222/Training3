@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Training3.NotificationServiceConfiguration;
 
 namespace Training3.Controllers
 {
@@ -21,12 +22,14 @@ namespace Training3.Controllers
         //private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
         private readonly INamedPipeClientService _namedPipeClient;
+        private readonly NotificationServiceProcess _notificationServiceProcess;
 
         public TestNotificationController(/*INotificationService notificationService,*/ IMapper mapper,
-            INamedPipeClientService namedPipeClient)
+            INamedPipeClientService namedPipeClient, NotificationServiceProcess notificationServiceProcess)
         {
             (_mapper, _namedPipeClient) =
                 (mapper, namedPipeClient);
+            _notificationServiceProcess = notificationServiceProcess;
         }
 
         [HttpPost]
@@ -73,6 +76,20 @@ namespace Training3.Controllers
             {
                 return StatusCode(500);
             }
+        }
+
+        [HttpGet("StartNotificationService")]
+        public IActionResult StartNotificationService()
+        {
+            _notificationServiceProcess.Start();
+            return Ok();
+        }
+
+        [HttpGet("KillNotificationService")]
+        public IActionResult KillNotificationService()
+        {
+            _notificationServiceProcess.KillProcess();
+            return Ok();
         }
     }
 }

@@ -30,6 +30,7 @@ using System.Net;
 using BLL.Interfaces.NamedPipe;
 using BLL.Services.NamedPipe;
 using BLL.Helpers;
+using Training3.NotificationServiceConfiguration;
 
 namespace Training3
 {
@@ -155,6 +156,15 @@ namespace Training3
             services.AddTransient<INamedPipeClientService, NamedPipeClientService>();
 
             //services.AddHostedService<NotificationServiceBackground>();
+
+            #region MyNotificationService
+            NotificationServiceBuilder builder = new NotificationServiceBuilder(
+                @"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\NotificationService.exe");
+            builder.UseMySQL(connection).StopNotificationServiceAfterException();
+            
+            var servicesProcess = builder.Build_UpdateConfiguration();
+            services.AddSingleton(servicesProcess);
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

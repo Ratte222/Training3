@@ -26,6 +26,7 @@
 		<ProjectReference Include="..\BLL\BLL.csproj" />
 		<ProjectReference Include="..\DAL\DAL.csproj" />
 		<ProjectReference Include="..\DAL_NS\DAL_NS.csproj" />
+		<ProjectReference Include="..\NotificationService\NotificationService.csproj" />
 	</ItemGroup>
 
 

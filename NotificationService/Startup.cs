@@ -25,8 +25,8 @@ namespace NotificationService
 {
     public class Startup
     {
-        private const string AppSettingsFileName = "appsettings.json";
-        private const string ConfigureNotificationServiceFileName = "ConfigureNotificationService.json";
+        public const string AppSettingsFileName = "appsettings.json";
+        public const string ConfigureNotificationServiceFileName = "ConfigureNotificationService.json";
 
         private readonly IConfiguration Configuration;
 

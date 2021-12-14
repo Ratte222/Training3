@@ -4,5 +4,67 @@
         <name>Training3</name>
     </assembly>
     <members>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.UseMySQL(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="notificationServiceBuilder"></param>
+            <param name="connectionString"></param>
+            <returns></returns>
+            <exception cref="T:System.NullReferenceException"></exception>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.StopProblemNotificationServiceAfterException(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Boolean)">
+            <summary>
+            will stop the problemNotificationService if an error occurs in it
+            </summary>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.StopNotificationServiceAfterException(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Boolean)">
+            <summary>
+            will stop the NotificationService if an error occurs in it
+            </summary>
+            <param name="builder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.SetTimeAfterCreateForPushToFile(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Int32)">
+            <summary>
+            difference between create time notification and the current time 
+            in minutes before a writing notification to a file  
+            </summary>
+            <param name="builder"></param>
+            <param name="timeAfterCreateForPushToFile">in minute</param>
+            <returns></returns>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.SetSleepTimeNotification(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Int32)">
+            <summary>
+            time between processing of the notification queue in second
+            </summary>
+            <param name="builder"></param>
+            <param name="sleepTime">in minute</param>
+            <returns></returns>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.SetNumberOfAttemptToSentForPushToFile(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Int32)">
+            <summary>
+            the nomber of unsuccessfull attempt to send a notification
+            before writing a notification to a file 
+            </summary>
+            <param name="builder"></param>        
+            <returns></returns>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.SetTimeOfTheLastAttemptToSendForPushToFile(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Int32)">
+            <summary>
+            difference between the time of the last attempt to send notification and
+            the current time in minutes before write a notification to a file
+            </summary>
+            <param name="time">in minute</param>        
+            <returns></returns>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.SetMongoSettings(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,NotificationService.Helpers.MongoDBSettings)">
+            <summary>
+            set up database for failed notifications 
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>
