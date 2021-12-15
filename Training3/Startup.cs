@@ -160,7 +160,10 @@ namespace Training3
             #region MyNotificationService
             NotificationServiceBuilder builder = new NotificationServiceBuilder(
                 @"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\NotificationService.exe");
-            builder.UseMySQL(connection).StopNotificationServiceAfterException();
+            builder
+                //.UseMySQL(connection)
+                .UseBinaryFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.dat")
+                .StopNotificationServiceAfterException();
             
             var servicesProcess = builder.Build_UpdateConfiguration();
             services.AddSingleton(servicesProcess);

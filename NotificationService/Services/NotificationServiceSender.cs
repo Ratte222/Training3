@@ -58,10 +58,8 @@ namespace NotificationService.Services
             while (true)
             {                
                 try
-                {                    
-                    var notifications = _notificationService.GetAll()
-                        .Where(i => i.IsSend == false).Include(i=>i.Exception)
-                        .Include(i => i.Credentials).Include(i=>i.MailSettings).AsNoTracking().ToArray();
+                {
+                    var notifications = _notificationService.GetForNotificationServiceSender();
                     Parallel.ForEach(notifications, notification =>
                     {
                         switch (notification.TypeNotification)

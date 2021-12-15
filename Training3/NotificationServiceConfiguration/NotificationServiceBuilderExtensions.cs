@@ -38,6 +38,20 @@ namespace Training3.NotificationServiceConfiguration
             return notificationServiceBuilder;
         }
 
+        /// <exception cref="NullReferenceException"></exception>
+        public static NotificationServiceBuilder UseBinaryFile(this NotificationServiceBuilder notificationServiceBuilder,
+            string pathToBinaryFile)
+        {
+            _ = notificationServiceBuilder ?? throw new NullReferenceException(
+                $"{nameof(notificationServiceBuilder)} is null");
+            _ = pathToBinaryFile ?? throw new NullReferenceException(
+                $"{nameof(pathToBinaryFile)} is null");
+            notificationServiceBuilder.NotificationSenderSettings.QueueDatabaseType
+                = QueueDatabaseType.InBinaryFile;
+            notificationServiceBuilder.AppSettings.ConnectionStrings.PathToBinaryFile = pathToBinaryFile;
+            return notificationServiceBuilder;
+        }
+
         /// <summary>
         /// will stop the problemNotificationService if an error occurs in it
         /// </summary>

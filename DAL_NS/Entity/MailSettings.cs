@@ -5,6 +5,7 @@ using System.Text;
 
 namespace DAL_NS.Entity
 {
+    [Serializable]
     public class MailSettings:BaseEntity<string>
     {
         public string DisplayName { get; set; }

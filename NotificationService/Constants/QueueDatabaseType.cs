@@ -7,6 +7,7 @@ namespace NotificationService.Constants
     public enum QueueDatabaseType
     {
         MySQL = 0,
-        InMemory
+        InMemory,
+        InBinaryFile
     }
 }

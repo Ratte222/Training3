@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NotificationService.Services.BaseService
+namespace NotificationService.Services.Base
 {
     public class BaseService<TModel, TContext, T> : IBaseService<TModel, T> 
         where TModel : BaseEntity<T>//, IDisposable

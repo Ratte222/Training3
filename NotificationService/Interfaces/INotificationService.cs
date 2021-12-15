@@ -9,6 +9,6 @@ namespace NotificationService.Interfaces
 {
     public interface INotificationService:IBaseService<Notification, string>
     {
-
+        public Notification[] GetForNotificationServiceSender();
     }
 }

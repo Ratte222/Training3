@@ -6,6 +6,7 @@ using System.Text;
 
 namespace DAL_NS.Entity
 {
+    [Serializable]
     public class Notification:BaseEntity<string>
     {
         public TypeNotification TypeNotification { get; set; }

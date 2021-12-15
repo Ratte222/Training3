@@ -5,6 +5,7 @@ using System.Text;
 
 namespace DAL_NS.Entity
 {
+    [Serializable]
     public class NotificationException:BaseEntity<string>
     {
         public string Type { get; set; }

@@ -6,6 +6,7 @@ using System.Text;
 
 namespace DAL_NS.Entity.Base
 {
+    [Serializable]
     public class BaseEntity<T>
     {
         //https://www.thecodebuzz.com/serializer-objectserializer-is-not-configurable-bsonrepresentationattribute/

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace DAL_NS.Entity
 {
+    [Serializable]
     public class Credentials:BaseEntity<string>
     {
         public string Login { get; set; }

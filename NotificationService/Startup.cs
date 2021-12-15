@@ -20,6 +20,7 @@ using NotificationService.Services.NamedPipe;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using NotificationService.Constants;
+using DAL_NS.Entity;
 
 namespace NotificationService
 {
@@ -70,29 +71,39 @@ namespace NotificationService
             //services.AddSingleton<MongoDBSettings>(mongoDBSettings);
             #endregion
             #region DatabaseConfiguration
-//#if UseMySQL
-//            string connection = Configuration.GetConnectionString("QueueSystem");            
-//            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
-//                new MySqlServerVersion(new Version(8, 0, 27)))
-//            .EnableSensitiveDataLogging(true), 
-//                ServiceLifetime.Transient);
-//#else
-//services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
-//                ServiceLifetime.Transient);
-//#endif
-            if(notificationSenderSettings.QueueDatabaseType == QueueDatabaseType.MySQL)
+            //#if UseMySQL
+            //            string connection = Configuration.GetConnectionString("QueueSystem");            
+            //            services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
+            //                new MySqlServerVersion(new Version(8, 0, 27)))
+            //            .EnableSensitiveDataLogging(true), 
+            //                ServiceLifetime.Transient);
+            //#else
+            //services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"), 
+            //                ServiceLifetime.Transient);
+            //#endif
+            string connection;
+            switch (notificationSenderSettings.QueueDatabaseType)
             {
-                string connection = Configuration.GetConnectionString("MySQL");
-                services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
-                    new MySqlServerVersion(new Version(8, 0, 27)))
-                    .EnableSensitiveDataLogging(true),
+                case QueueDatabaseType.MySQL:
+                    connection = Configuration.GetConnectionString("MySQL");
+                    services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
+                        new MySqlServerVersion(new Version(8, 0, 27)))
+                        .EnableSensitiveDataLogging(true),
+                        ServiceLifetime.Transient);
+                    services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
+                    break;
+                case QueueDatabaseType.InMemory:
+                    services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"),
                     ServiceLifetime.Transient);
-            }
-            else if (notificationSenderSettings.QueueDatabaseType == QueueDatabaseType.InMemory)
-            {
-                services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification"),
-                    ServiceLifetime.Transient);
-            }
+                    services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
+                    break;
+                case QueueDatabaseType.InBinaryFile:
+                    connection = Configuration.GetConnectionString("PathToBinaryFile");
+                    services.AddScoped<IFileProviderService<Notification>>(x=>
+                        new BinaryFileProviderService<Notification>(connection));
+                    services.AddScoped<INotificationService, BinaryNotificationService>();
+                    break;
+            }            
             #endregion
 
 
@@ -119,8 +130,7 @@ namespace NotificationService
             }            
             #endregion
 
-            services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<INotificationService, NotificationService.Services.NotificationService>();
+            services.AddScoped<IEmailService, EmailService>();            
             services.AddTransient<INamedPipeServerService, NamedPipeServerService>();
             services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
             services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
