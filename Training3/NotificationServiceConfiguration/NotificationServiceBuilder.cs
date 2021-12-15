@@ -36,7 +36,8 @@ namespace Training3.NotificationServiceConfiguration
             string jsonConfig = JsonConvert.SerializeObject(AppSettings);
             File.WriteAllText(Path.Combine(
                 pathToConfigs, NotificationService.Startup.AppSettingsFileName), jsonConfig);
-            jsonConfig = JsonConvert.SerializeObject(NotificationSenderSettings);
+            jsonConfig = $"{{ \"{nameof(NotificationSenderSettings)}\" : "  + 
+                JsonConvert.SerializeObject(NotificationSenderSettings) + " }";
             File.WriteAllText(Path.Combine(
                 pathToConfigs, NotificationService.Startup.ConfigureNotificationServiceFileName), jsonConfig);
             var process = new NotificationServiceProcess(PathToNotificationService);

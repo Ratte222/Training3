@@ -46,7 +46,7 @@ namespace NotificationService
             EmailConfiguration emailConfiguration = Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
             services.AddSingleton<IEmailConfiguration>(emailConfiguration);
             NotificationSenderSettings notificationSenderSettings
-                = Configuration.GetSection("NotificationSenderSettings").Get<NotificationSenderSettings>();
+                = Configuration.GetSection(nameof(NotificationSenderSettings)).Get<NotificationSenderSettings>();
             services.AddSingleton<INotificationSenderSettings>(
                 notificationSenderSettings);
             services.AddSingleton<MongoDBSettings>(
@@ -99,20 +99,24 @@ namespace NotificationService
             //BsonDefaults.MaxSerializationDepth = 2;
 
             #region FluentEmail_Smtp
-            SmtpClient smtp = new SmtpClient
+            if(notificationSenderSettings.SendMailIfNotificationServiceSenderHasException ||
+                notificationSenderSettings.SendMailIfProblemNotificationServiceHasException)
             {
-                //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
-                Host = emailConfiguration.SmtpHost,
-                Port = emailConfiguration.SmtpPort,
-                UseDefaultCredentials = true,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                //Enter the user name and password of your sending SMTP server here
-                Credentials = new NetworkCredential(emailConfiguration.SmtpEmail, emailConfiguration.SmtpPassword)
-            };
-            services
-                .AddFluentEmail(emailConfiguration.SmtpEmail)
-                .AddSmtpSender(smtp); //configure host and port
+                SmtpClient smtp = new SmtpClient
+                {
+                    //The address of the SMTP server (I'll take mailbox 126 as an example, which can be set according to the specific mailbox you use)
+                    Host = emailConfiguration.SmtpHost,
+                    Port = emailConfiguration.SmtpPort,
+                    UseDefaultCredentials = true,
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    //Enter the user name and password of your sending SMTP server here
+                    Credentials = new NetworkCredential(emailConfiguration.SmtpEmail, emailConfiguration.SmtpPassword)
+                };
+                services
+                    .AddFluentEmail(emailConfiguration.SmtpEmail)
+                    .AddSmtpSender(smtp); //configure host and port
+            }            
             #endregion
 
             services.AddScoped<IEmailService, EmailService>();

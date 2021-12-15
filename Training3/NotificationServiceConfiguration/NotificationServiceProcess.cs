@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,18 +16,21 @@ namespace Training3.NotificationServiceConfiguration
         {
             PathToNotificationService = pathToNotificationService;
             _process = new Process();
-        }
-
-        public void Start()
-        {
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = PathToNotificationService;
-            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = false;
+            //startInfo.UseShellExecute = false;
+            //startInfo.RedirectStandardOutput = true;
+            _process.StartInfo = startInfo;
+        }
+
+        public bool Start()
+        {            
             if(_process != null)
-            {
-                _process.StartInfo = startInfo;
-                _process.Start();
-            }            
+            {                
+                return _process.Start();
+            }
+            return false;
         }
 
         public void KillProcess()

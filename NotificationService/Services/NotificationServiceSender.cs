@@ -17,14 +17,14 @@ namespace NotificationService.Services
     public class NotificationServiceSender: INotificationServiceSender
     {
         public event Func<Task> NeedCheckProblemNotification;
-
+        private ServiceProvider _serviceProvider;
         private readonly ILogger<NotificationServiceSender> _logger;
         private readonly IEmailService _emailService;
 
         /// <summary>
         /// email service to send exeption to the developer
         /// </summary>
-        private readonly IFluentEmail _fluentEmail;
+        //private readonly IFluentEmail _fluentEmail;
         private readonly INotificationService _notificationService;
         private readonly INotificationSenderSettings _notificationSenderSettings;
         
@@ -33,13 +33,11 @@ namespace NotificationService.Services
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
 
         public NotificationServiceSender(ILogger<NotificationServiceSender> logger, IEmailService emailService,
-            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings,
-            IFluentEmail fluentEmail)
+            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings)
         {
             (_logger, _emailService,  _notificationSenderSettings) = 
                 (logger, emailService,  notificationSenderSettings);
-            _notificationService = notificationService;
-            _fluentEmail = fluentEmail;
+            _notificationService = notificationService;            
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
         }
@@ -49,6 +47,11 @@ namespace NotificationService.Services
         //    _cancellationTokenSource = cancellationTokenSource;
         //    _cancellationToken = cancellationTokenSource.Token;
         //}
+
+        public void SetServiceProvider(ServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
         public async Task ExecuteAsync()
         {
@@ -103,7 +106,8 @@ namespace NotificationService.Services
                     {
                         try
                         {
-                            _fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
+                            var fluentEmail = _serviceProvider.GetService<IFluentEmail>();
+                            fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
                                 .Subject($"Exception in {nameof(NotificationServiceSender)}")
                                 .Body(JsonConvert.SerializeObject(ex))
                                 .Send();

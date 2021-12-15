@@ -8,6 +8,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using FluentEmail.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NotificationService.Services
 {
@@ -18,23 +19,30 @@ namespace NotificationService.Services
         /// <summary>
         /// email service to send exeption to the developer
         /// </summary>
-        private readonly IFluentEmail _fluentEmail;
+        //private readonly IFluentEmail _fluentEmail;
+        private ServiceProvider _serviceProvider;
         private readonly ILogger<ProblemNotificationsService> _logger;
         private readonly INotificationMongoRepository _notificationMongoRepository;
         private readonly INotificationService _notificationService;
         private readonly INotificationSenderSettings _notificationSenderSettings;
+
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
         public ProblemNotificationsService(ILogger<ProblemNotificationsService> logger,
             INotificationMongoRepository notificationMongoRepository, INotificationService notificationService,
-            INotificationSenderSettings notificationSenderSettings, IFluentEmail fluentEmail)
+            INotificationSenderSettings notificationSenderSettings)
         {
             (_logger, _notificationMongoRepository, _notificationService, _notificationSenderSettings)=
             (logger, notificationMongoRepository, notificationService, notificationSenderSettings);
-            _fluentEmail = fluentEmail;
+            
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
+        }
+
+        public void SetServiceProvider(ServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
         }
 
         public async Task ExecuteAsync()
@@ -82,7 +90,8 @@ namespace NotificationService.Services
                 {
                     try
                     {
-                        _fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
+                        var fluentEmail = _serviceProvider.GetService<IFluentEmail>();
+                        fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
                             .Subject($"Exception in {nameof(ProblemNotificationsService)}")
                             .Body(JsonConvert.SerializeObject(ex))
                             .Send();

@@ -81,8 +81,7 @@ namespace Training3.Controllers
         [HttpGet("StartNotificationService")]
         public IActionResult StartNotificationService()
         {
-            _notificationServiceProcess.Start();
-            return Ok();
+            return Ok(_notificationServiceProcess.Start());
         }
 
         [HttpGet("KillNotificationService")]

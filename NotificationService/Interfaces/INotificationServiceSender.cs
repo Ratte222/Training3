@@ -11,6 +11,6 @@ namespace NotificationService.Interfaces
         event Func<Task> NeedCheckProblemNotification;
         void Stop();
         Task ExecuteAsync();
-
+        void SetServiceProvider(ServiceProvider serviceProvider);
     }
 }
