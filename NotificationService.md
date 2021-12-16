@@ -23,3 +23,7 @@ Example body for request:
 }
 ```
 Messages will be sent from the account in the training3 project appsettings.
+
+# Problem notification service
+- there may be problems with saving data in binary files
+- now there may still be problems under heavy load 
