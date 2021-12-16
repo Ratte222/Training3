@@ -8,6 +8,7 @@ namespace NotificationService.Constants
     {
         MySQL = 0,
         InMemory,
-        InBinaryFile
+        InBinaryFile,
+        InJsonFile
     }
 }

@@ -7,10 +7,10 @@ using System.Linq;
 
 namespace NotificationService.Services
 {
-    class BinaryNotificationService : FileRepoBase<Notification>, INotificationService
+    class FileNotificationService : FileRepoBase<Notification>, INotificationService
     {
         
-        public BinaryNotificationService(IFileProviderService<Notification> fileProviderService)
+        public FileNotificationService(IFileProviderService<Notification> fileProviderService)
             : base(fileProviderService) { }
         public Notification[] GetForNotificationServiceSender()
         {

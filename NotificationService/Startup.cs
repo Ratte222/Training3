@@ -101,8 +101,15 @@ namespace NotificationService
                     connection = Configuration.GetConnectionString("PathToBinaryFile");
                     services.AddScoped<IFileProviderService<Notification>>(x=>
                         new BinaryFileProviderService<Notification>(connection));
-                    services.AddScoped<INotificationService, BinaryNotificationService>();
+                    services.AddScoped<INotificationService, FileNotificationService>();
                     break;
+                case QueueDatabaseType.InJsonFile:
+                    connection = Configuration.GetConnectionString("PathToJsonFile");
+                    services.AddScoped<IFileProviderService<Notification>>(x =>
+                        new JsonFileProviderService<Notification>(connection));
+                    services.AddScoped<INotificationService, FileNotificationService>();
+                    break;
+
             }            
             #endregion
 

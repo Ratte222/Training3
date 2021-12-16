@@ -8,6 +8,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Linq;
 using System.Threading.Tasks;
 using NotificationService.Interfaces;
+using NotificationService.Exceptions;
+using System.Threading;
 
 namespace NotificationService.Services.Base
 {
@@ -16,6 +18,7 @@ namespace NotificationService.Services.Base
     {
         //private List<TModel> notifications;
         private readonly IFileProviderService<TModel> _fileProviderService;
+        private readonly AutoResetEvent _waitHandler = new AutoResetEvent(true);
         public FileRepoBase(IFileProviderService<TModel> fileProviderService)
         {
             _fileProviderService = fileProviderService;
@@ -61,7 +64,9 @@ namespace NotificationService.Services.Base
             var model = notifications.FirstOrDefault(i => i.Id == id);
             if (model != null)
             {
-                notifications.Remove(model);
+                bool res = notifications.Remove(model);
+                if (!res)
+                    throw new EntityNotFoundException($"Item with this Id = {model.Id} does not exist");
             }
             _fileProviderService.WriteToDisck(notifications);
         }
@@ -70,7 +75,11 @@ namespace NotificationService.Services.Base
         {
             List<TModel> notifications = _fileProviderService.ReadFromDisck();
             foreach (var item in items)
-                notifications.Remove(item);
+            {
+                bool res = notifications.Remove(item);
+                if (!res)
+                    throw new EntityNotFoundException($"Item with this Id = {item.Id} does not exist");
+            }
             _fileProviderService.WriteToDisck(notifications);
             return Task.CompletedTask;
         }
@@ -126,7 +135,9 @@ namespace NotificationService.Services.Base
         public void Update(TModel item)
         {
             var notifications = _fileProviderService.ReadFromDisck();
-            notifications.Remove(item);
+            bool res = notifications.Remove(item);
+            if (!res)
+                throw new EntityNotFoundException($"Item with this Id = {item.Id} does not exist");
             notifications.Add(item);
             _fileProviderService.WriteToDisck(notifications);
         }
@@ -136,7 +147,9 @@ namespace NotificationService.Services.Base
             var notifications = _fileProviderService.ReadFromDisck();
             foreach (var item in items)
             {
-                notifications.Remove(item);
+                bool res = notifications.Remove(item);
+                if (!res)
+                    throw new EntityNotFoundException($"Item with this Id = {item.Id} does not exist");
                 notifications.Add(item);
             }
             _fileProviderService.WriteToDisck(notifications);

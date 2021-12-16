@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CommonForCryptPasswordLibrary.WorkWithJson;
+using Newtonsoft.Json;
 using NotificationService.Helpers;
 using System;
 using System.Collections.Generic;
@@ -29,15 +30,14 @@ namespace Training3.NotificationServiceConfiguration
         public NotificationServiceProcess Build_UpdateConfiguration()
         {
             string pathToConfigs = Path.GetDirectoryName(PathToNotificationService);
-            //JsonSerializerSettings settings = new JsonSerializerSettings() {
-            //NullValueHandling = NullValueHandling.Ignore,
-            //Formatting
-            //}
-            string jsonConfig = JsonConvert.SerializeObject(AppSettings);
-            File.WriteAllText(Path.Combine(
-                pathToConfigs, NotificationService.Startup.AppSettingsFileName), jsonConfig);
-            jsonConfig = $"{{ \"{nameof(NotificationSenderSettings)}\" : "  + 
-                JsonConvert.SerializeObject(NotificationSenderSettings) + " }";
+            SerializeDeserializeJson<NotificationService.Helpers.AppSettings> serializeAppSettings =
+                new SerializeDeserializeJson<AppSettings>();
+            serializeAppSettings.SerializeToFile(AppSettings, Path.Combine(
+                pathToConfigs, NotificationService.Startup.AppSettingsFileName));
+            SerializeDeserializeJson<NotificationSenderSettings> serializeNotificationSenderService =
+                new SerializeDeserializeJson<NotificationSenderSettings>();
+            string jsonConfig = $"{{ \"{nameof(NotificationSenderSettings)}\" : " +
+                $"{serializeNotificationSenderService.Serialize(NotificationSenderSettings)} }}";
             File.WriteAllText(Path.Combine(
                 pathToConfigs, NotificationService.Startup.ConfigureNotificationServiceFileName), jsonConfig);
             var process = new NotificationServiceProcess(PathToNotificationService);

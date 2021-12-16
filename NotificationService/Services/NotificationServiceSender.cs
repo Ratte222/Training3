@@ -59,6 +59,7 @@ namespace NotificationService.Services
             {                
                 try
                 {
+                    _logger.LogDebug("Start processing queue");
                     var notifications = _notificationService.GetForNotificationServiceSender();
                     Parallel.ForEach(notifications, notification =>
                     {

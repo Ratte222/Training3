@@ -21,6 +21,7 @@ namespace NotificationService.Helpers
     {
         public string MySQL { get; set; }
         public string PathToBinaryFile { get; set; }
+        public string PathToJsonFile { get; set; }
     }
 
 }

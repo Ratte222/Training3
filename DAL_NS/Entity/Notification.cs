@@ -27,6 +27,27 @@ namespace DAL_NS.Entity
         {
             //Id = Guid.NewGuid().ToString();
         }
+
+        public override string ToString()
+        {
+            return "ID: " + Id;// + "   Name: " + PartName;
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            Notification objAsPart = obj as Notification;
+            if (objAsPart == null) return false;
+            else return Equals(objAsPart);
+        }
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+        public bool Equals(Notification other)
+        {
+            if (other == null) return false;
+            return (this.Id.Equals(other.Id));
+        }
     }
 
     public enum TypeNotification

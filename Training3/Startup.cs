@@ -162,7 +162,8 @@ namespace Training3
                 @"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\NotificationService.exe");
             builder
                 //.UseMySQL(connection)
-                .UseBinaryFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.dat")
+                //.UseBinaryFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.dat")
+                .UseJsonFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.json")
                 .StopNotificationServiceAfterException();
             
             var servicesProcess = builder.Build_UpdateConfiguration();

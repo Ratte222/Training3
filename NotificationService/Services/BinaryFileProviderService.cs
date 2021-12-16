@@ -18,15 +18,15 @@ namespace NotificationService.Services
 
         public void WriteToDisck(List<TModel> models)
         {
-            if(models.Count > 0)
-            {
+            //if(models.Count > 0)
+            //{
                 using (FileStream fs = new FileStream(_pathToFile, FileMode.OpenOrCreate))
                 {
                     // Construct a BinaryFormatter and use it to serialize the data to the stream.
                     BinaryFormatter formatter = new BinaryFormatter();
                     formatter.Serialize(fs, models);
                 }
-            }            
+            //}            
         }
 
         public List<TModel> ReadFromDisck()

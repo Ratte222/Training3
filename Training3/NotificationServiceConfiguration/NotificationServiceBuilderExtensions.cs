@@ -40,15 +40,29 @@ namespace Training3.NotificationServiceConfiguration
 
         /// <exception cref="NullReferenceException"></exception>
         public static NotificationServiceBuilder UseBinaryFile(this NotificationServiceBuilder notificationServiceBuilder,
-            string pathToBinaryFile)
+            string pathToJsonFile)
         {
             _ = notificationServiceBuilder ?? throw new NullReferenceException(
                 $"{nameof(notificationServiceBuilder)} is null");
-            _ = pathToBinaryFile ?? throw new NullReferenceException(
-                $"{nameof(pathToBinaryFile)} is null");
+            _ = pathToJsonFile ?? throw new NullReferenceException(
+                $"{nameof(pathToJsonFile)} is null");
             notificationServiceBuilder.NotificationSenderSettings.QueueDatabaseType
                 = QueueDatabaseType.InBinaryFile;
-            notificationServiceBuilder.AppSettings.ConnectionStrings.PathToBinaryFile = pathToBinaryFile;
+            notificationServiceBuilder.AppSettings.ConnectionStrings.PathToBinaryFile = pathToJsonFile;
+            return notificationServiceBuilder;
+        }
+
+        /// <exception cref="NullReferenceException"></exception>
+        public static NotificationServiceBuilder UseJsonFile(this NotificationServiceBuilder notificationServiceBuilder,
+            string pathToJsonFile)
+        {
+            _ = notificationServiceBuilder ?? throw new NullReferenceException(
+                $"{nameof(notificationServiceBuilder)} is null");
+            _ = pathToJsonFile ?? throw new NullReferenceException(
+                $"{nameof(pathToJsonFile)} is null");
+            notificationServiceBuilder.NotificationSenderSettings.QueueDatabaseType
+                = QueueDatabaseType.InJsonFile;
+            notificationServiceBuilder.AppSettings.ConnectionStrings.PathToJsonFile = pathToJsonFile;
             return notificationServiceBuilder;
         }
 
