@@ -7,7 +7,8 @@ using System.Linq;
 
 namespace NotificationService.Services
 {
-    class FileNotificationService : FileRepoBase<Notification>, INotificationService
+    class FileNotificationService : FileRepoBase<Notification>, 
+        INotificationService, IProblemNotificationService
     {
         
         public FileNotificationService(IFileProviderService<Notification> fileProviderService)

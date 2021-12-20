@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace NotificationService.Services
 {
     //https://www.mongodb.com/developer/how-to/transactions-c-dotnet/
-    public class ProblemNotificationsService:IProblemNotificationsService
+    public class InspectorProblemNotificationsService:IInspectorProblemNotificationsService
     {
         private AutoResetEvent _waitHandler = new AutoResetEvent(true);
         /// <summary>
@@ -21,19 +21,19 @@ namespace NotificationService.Services
         /// </summary>
         //private readonly IFluentEmail _fluentEmail;
         private ServiceProvider _serviceProvider;
-        private readonly ILogger<ProblemNotificationsService> _logger;
-        private readonly INotificationMongoRepository _notificationMongoRepository;
+        private readonly ILogger<InspectorProblemNotificationsService> _logger;
+        private readonly IProblemNotificationService _problemNotificationService;
         private readonly INotificationService _notificationService;
         private readonly INotificationSenderSettings _notificationSenderSettings;
 
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        public ProblemNotificationsService(ILogger<ProblemNotificationsService> logger,
-            INotificationMongoRepository notificationMongoRepository, INotificationService notificationService,
+        public InspectorProblemNotificationsService(ILogger<InspectorProblemNotificationsService> logger,
+            IProblemNotificationService notificationMongoRepository, INotificationService notificationService,
             INotificationSenderSettings notificationSenderSettings)
         {
-            (_logger, _notificationMongoRepository, _notificationService, _notificationSenderSettings)=
+            (_logger, _problemNotificationService, _notificationService, _notificationSenderSettings)=
             (logger, notificationMongoRepository, notificationService, notificationSenderSettings);
             
             _cancellationTokenSource = new CancellationTokenSource();
@@ -62,7 +62,7 @@ namespace NotificationService.Services
                     .AsNoTracking().AsEnumerable();
                 if(problem_notifications.Count() > 0)
                 {
-                    await _notificationMongoRepository.AddRangeAsync(problem_notifications);
+                    await _problemNotificationService.CreateRangeAsync(problem_notifications);
                     await _notificationService.DeleteRangeAsync(problem_notifications);
                     //Standalone servers do not support transactions.
                     //var mongoHandle = await _notificationMongoRepository.StartSessionAsync();
@@ -85,14 +85,14 @@ namespace NotificationService.Services
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Problem in {nameof(ProblemNotificationsService)}");
+                _logger.LogWarning(ex, $"Problem in {nameof(InspectorProblemNotificationsService)}");
                 if (_notificationSenderSettings.SendMailIfProblemNotificationServiceHasException)
                 {
                     try
                     {
                         var fluentEmail = _serviceProvider.GetService<IFluentEmail>();
                         fluentEmail.To(_notificationSenderSettings.DeveloperEmail)
-                            .Subject($"Exception in {nameof(ProblemNotificationsService)}")
+                            .Subject($"Exception in {nameof(InspectorProblemNotificationsService)}")
                             .Body(JsonConvert.SerializeObject(ex))
                             .Send();
                     }
@@ -117,7 +117,7 @@ namespace NotificationService.Services
             _waitHandler.WaitOne();
             try
             {
-                var query = _notificationMongoRepository.GetQueryable();
+                var query = _problemNotificationService.GetAll_Queryable();
                 if (take > 0) { query = query.Take(take); }
                 var problemNotifications = query.ToList();
 
@@ -128,7 +128,7 @@ namespace NotificationService.Services
                 });
                 //TODO: check duplicate id
                 await _notificationService.CreateRangeAsync(problemNotifications);
-                await _notificationMongoRepository.DeleteManyAsync(problemNotifications);
+                await _problemNotificationService.DeleteRangeAsync(problemNotifications);
             }
             finally
             {

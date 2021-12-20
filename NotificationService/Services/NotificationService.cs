@@ -10,7 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace NotificationService.Services
 {
-    public class NotificationService:BaseService<Notification, QueueSystemDbContext, string>, INotificationService
+    public class NotificationService:BaseService<Notification, QueueSystemDbContext, string>,
+        INotificationService, IProblemNotificationService
     {
         public NotificationService(QueueSystemDbContext context): base(context)
         { }

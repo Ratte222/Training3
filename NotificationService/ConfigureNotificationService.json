@@ -9,6 +9,7 @@
     "StopNotificationServiceSenderAfterException": true,
     "SendMailIfNotificationServiceSenderHasException": true,
     "DeveloperEmail": "artur@gmail.com",
-    "QueueDatabaseType" : 0
+    "QueueDatabaseType": 0,
+    "DatabaseType_NS" : 3
   }
 }

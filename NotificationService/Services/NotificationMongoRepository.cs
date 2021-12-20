@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.Linq.Expressions;
 
 namespace NotificationService.Services
 {
-    public class NotificationMongoRepository : INotificationMongoRepository
+    public class NotificationMongoRepository : INotificationService, IProblemNotificationService//INotificationMongoRepository
     {
         //https://dev.to/mpetrinidev/a-guide-to-bulk-write-operations-in-mongodb-with-c-51fk
         private readonly MongoDBSettings _mongoDBSettings;
@@ -26,49 +28,40 @@ namespace NotificationService.Services
             _notificationCollection = 
                 _mongoDatabase.GetCollection<Notification>(mongoDBSettings.NotificationDatabaseName);            
         }
-        public async Task AddRangeAsync(IEnumerable<Notification> notifications)
+
+        public Task CommitTransactionAsync()
         {
-            //await _notificationCollection.InsertOneAsync(notifications.First());
-            await _notificationCollection.InsertManyAsync(notifications);
-            //var listWrites = new List<WriteModel<Notification>>();
-            //foreach(var notification in notifications)
-            //{
-            //    listWrites.Add(new InsertOneModel<Notification>(notification));
-            //}
-            //await _notificationCollection.BulkWriteAsync(listWrites);
+            //throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
-        public IQueryable<Notification> GetQueryable()
+        public Notification Create(Notification item)
         {
-            return _notificationCollection.AsQueryable();
+            _notificationCollection.InsertOne(item);
+            return item;
         }
 
-        public IEnumerable<Notification> Find(FilterDefinition<Notification> filterDefinition)
+        public void CreateRange(IEnumerable<Notification> items)
         {
-            return _notificationCollection.Find(filterDefinition).ToEnumerable();
+            _notificationCollection.InsertMany(items);
         }
 
-        public async Task ReplaceManyByIdAsync(IEnumerable<Notification> notifications)
+        public async Task CreateRangeAsync(IEnumerable<Notification> items)
         {
-            var listWrites = new List<WriteModel<Notification>>();
-            foreach (var notification in notifications)
-            {
-                var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
-                listWrites.Add(new ReplaceOneModel<Notification>(filter, notification));//x => x.Id == notification.Id
-            };
-            await _notificationCollection.BulkWriteAsync(listWrites);
+            await _notificationCollection.InsertManyAsync(items);
         }
 
-        public void ReplaceOneById(Notification notification)
+        public void Delete(string id)
         {
+            Notification notification = new Notification();
             var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
-            _notificationCollection.ReplaceOne(filter, notification);            
+            _notificationCollection.DeleteOne(filter);
         }
 
-        public async Task DeleteManyAsync(IEnumerable<Notification> notifications)
+        public async Task DeleteRangeAsync(IEnumerable<Notification> items)
         {
             var listWrites = new List<WriteModel<Notification>>();
-            foreach (var notification in notifications)
+            foreach (var notification in items)
             {
                 var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
                 listWrites.Add(new DeleteOneModel<Notification>(filter));
@@ -76,29 +69,128 @@ namespace NotificationService.Services
             await _notificationCollection.BulkWriteAsync(listWrites);
         }
 
-        public long Count(FilterDefinition<Notification> filterDefinition)
+        public void Dispose()
         {
-            return _notificationCollection.CountDocuments(filterDefinition);
+            
         }
 
-        public async Task<IClientSessionHandle> StartSessionAsync()
+        public Notification Get(Func<Notification, bool> func)
         {
-            return await _mongoClient.StartSessionAsync();
+            throw new NotImplementedException();
         }
 
-        //public void BeginTransaction(IClientSessionHandle handle)
+        public IQueryable<Notification> GetAll()
+        {
+            return _notificationCollection.AsQueryable();
+        }
+
+        public IEnumerable<Notification> GetAll_Enumerable()
+        {
+            return _notificationCollection.AsQueryable().AsEnumerable();
+        }
+
+        public IQueryable<Notification> GetAll_Queryable()
+        {
+            return _notificationCollection.AsQueryable();
+        }
+
+        public Task<Notification> GetAsync(Expression<Func<Notification, bool>> func)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Notification[] GetForNotificationServiceSender()
+        {
+            return GetAll_Queryable().ToArray();
+        }
+
+        public bool IsExists(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        //in theory, this is not correct
+        public Task RollbackTransactionAsync()
+        {
+            //throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        public Task StartTransactionAsync()
+        {
+            //throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
+        public void Update(Notification item)
+        {
+            var filter = Builders<Notification>.Filter.Eq(nameof(item.Id), item.Id);
+            _notificationCollection.ReplaceOne(filter, item);
+        }
+
+        public async Task UpdateRangeAsync(IEnumerable<Notification> items)
+        {
+            var listWrites = new List<WriteModel<Notification>>();
+            foreach (var notification in items)
+            {
+                var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
+                listWrites.Add(new ReplaceOneModel<Notification>(filter, notification));//x => x.Id == notification.Id
+            };
+            await _notificationCollection.BulkWriteAsync(listWrites);
+        }
+
+
+        //public async Task AddRangeAsync(IEnumerable<Notification> notifications)
         //{
-        //    handle.StartTransaction();
+        //    await _notificationCollection.InsertManyAsync(notifications);            
         //}
 
-        //public async Task CommitTransactionAsync(IClientSessionHandle handle)
+        //public IQueryable<Notification> GetQueryable()
         //{
-        //    await handle.CommitTransactionAsync();
+        //    return _notificationCollection.AsQueryable();
         //}
 
-        //public async Task AbortTransactionAsync(IClientSessionHandle handle)
+        //public IEnumerable<Notification> Find(FilterDefinition<Notification> filterDefinition)
         //{
-        //    await handle.AbortTransactionAsync();
+        //    return _notificationCollection.Find(filterDefinition).ToEnumerable();
+        //}
+
+        //public async Task ReplaceManyByIdAsync(IEnumerable<Notification> notifications)
+        //{
+        //    var listWrites = new List<WriteModel<Notification>>();
+        //    foreach (var notification in notifications)
+        //    {
+        //        var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
+        //        listWrites.Add(new ReplaceOneModel<Notification>(filter, notification));//x => x.Id == notification.Id
+        //    };
+        //    await _notificationCollection.BulkWriteAsync(listWrites);
+        //}
+
+        //public void ReplaceOneById(Notification notification)
+        //{
+        //    var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
+        //    _notificationCollection.ReplaceOne(filter, notification);            
+        //}
+
+        //public async Task DeleteManyAsync(IEnumerable<Notification> notifications)
+        //{
+        //    var listWrites = new List<WriteModel<Notification>>();
+        //    foreach (var notification in notifications)
+        //    {
+        //        var filter = Builders<Notification>.Filter.Eq(nameof(notification.Id), notification.Id);
+        //        listWrites.Add(new DeleteOneModel<Notification>(filter));
+        //    };
+        //    await _notificationCollection.BulkWriteAsync(listWrites);
+        //}
+
+        //public long Count(FilterDefinition<Notification> filterDefinition)
+        //{
+        //    return _notificationCollection.CountDocuments(filterDefinition);
+        //}
+
+        //public async Task<IClientSessionHandle> StartSessionAsync()
+        //{
+        //    return await _mongoClient.StartSessionAsync();
         //}
     }
 }

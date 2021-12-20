@@ -18,5 +18,6 @@ namespace NotificationService.Helpers
         public bool SendMailIfNotificationServiceSenderHasException { get; set; }
         public string DeveloperEmail { get; set; }
         public QueueDatabaseType QueueDatabaseType { get; set; }
+        public QueueDatabaseType DatabaseType_PN { get; set; }
     }
 }

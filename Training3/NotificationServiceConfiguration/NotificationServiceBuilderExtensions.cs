@@ -29,11 +29,33 @@ namespace Training3.NotificationServiceConfiguration
             return notificationServiceBuilder;
         }
 
+        public static NotificationServiceBuilder UseMySQL_PN(this NotificationServiceBuilder notificationServiceBuilder,
+            string connectionString)
+        {
+            _ = notificationServiceBuilder ?? throw new NullReferenceException(
+                $"{nameof(notificationServiceBuilder)} is null");
+            _ = connectionString ?? throw new NullReferenceException(
+                $"{nameof(connectionString)} is null");
+            notificationServiceBuilder.NotificationSenderSettings.DatabaseType_PN
+                = QueueDatabaseType.MySQL;
+            notificationServiceBuilder.AppSettings.ConnectionStrings.MySQL_PN = connectionString;
+            return notificationServiceBuilder;
+        }
+
         public static NotificationServiceBuilder UseDbInMemory(this NotificationServiceBuilder notificationServiceBuilder)
         {
             _ = notificationServiceBuilder ?? throw new NullReferenceException(
                 $"{nameof(notificationServiceBuilder)} is null");
             notificationServiceBuilder.NotificationSenderSettings.QueueDatabaseType
+                = QueueDatabaseType.InMemory;
+            return notificationServiceBuilder;
+        }
+
+        public static NotificationServiceBuilder UseDbInMemory_PN(this NotificationServiceBuilder notificationServiceBuilder)
+        {
+            _ = notificationServiceBuilder ?? throw new NullReferenceException(
+                $"{nameof(notificationServiceBuilder)} is null");
+            notificationServiceBuilder.NotificationSenderSettings.DatabaseType_PN
                 = QueueDatabaseType.InMemory;
             return notificationServiceBuilder;
         }
@@ -53,6 +75,21 @@ namespace Training3.NotificationServiceConfiguration
         }
 
         /// <exception cref="NullReferenceException"></exception>
+        public static NotificationServiceBuilder UseBinaryFile_PN(this NotificationServiceBuilder notificationServiceBuilder,
+            string pathToJsonFile)
+        {
+            _ = notificationServiceBuilder ?? throw new NullReferenceException(
+                $"{nameof(notificationServiceBuilder)} is null");
+            _ = pathToJsonFile ?? throw new NullReferenceException(
+                $"{nameof(pathToJsonFile)} is null");
+            notificationServiceBuilder.NotificationSenderSettings.DatabaseType_PN
+                = QueueDatabaseType.InBinaryFile;
+            notificationServiceBuilder.AppSettings.ConnectionStrings.PathToBinaryFile_PN
+                = pathToJsonFile;
+            return notificationServiceBuilder;
+        }
+
+        /// <exception cref="NullReferenceException"></exception>
         public static NotificationServiceBuilder UseJsonFile(this NotificationServiceBuilder notificationServiceBuilder,
             string pathToJsonFile)
         {
@@ -66,18 +103,32 @@ namespace Training3.NotificationServiceConfiguration
             return notificationServiceBuilder;
         }
 
+        /// <exception cref="NullReferenceException"></exception>
+        public static NotificationServiceBuilder UseJsonFile_PN(this NotificationServiceBuilder notificationServiceBuilder,
+            string pathToJsonFile)
+        {
+            _ = notificationServiceBuilder ?? throw new NullReferenceException(
+                $"{nameof(notificationServiceBuilder)} is null");
+            _ = pathToJsonFile ?? throw new NullReferenceException(
+                $"{nameof(pathToJsonFile)} is null");
+            notificationServiceBuilder.NotificationSenderSettings.DatabaseType_PN
+                = QueueDatabaseType.InJsonFile;
+            notificationServiceBuilder.AppSettings.ConnectionStrings.PathToJsonFile_PN = pathToJsonFile;
+            return notificationServiceBuilder;
+        }
+
         /// <summary>
         /// will stop the problemNotificationService if an error occurs in it
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
         public static NotificationServiceBuilder StopProblemNotificationServiceAfterException(
-            this NotificationServiceBuilder builder, bool parametr = false)
+            this NotificationServiceBuilder builder, bool parameter = false)
         {
             _ = builder ?? throw new NullReferenceException(
                 $"{nameof(builder)} is null");
             builder.NotificationSenderSettings.StopProblemNotificationServiceAfterException
-                = parametr;
+                = parameter;
             return builder;
         }
 

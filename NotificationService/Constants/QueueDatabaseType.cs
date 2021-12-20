@@ -9,6 +9,7 @@ namespace NotificationService.Constants
         MySQL = 0,
         InMemory,
         InBinaryFile,
-        InJsonFile
+        InJsonFile,
+        InMongoDB
     }
 }

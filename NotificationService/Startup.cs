@@ -50,8 +50,7 @@ namespace NotificationService
                 = Configuration.GetSection(nameof(NotificationSenderSettings)).Get<NotificationSenderSettings>();
             services.AddSingleton<INotificationSenderSettings>(
                 notificationSenderSettings);
-            services.AddSingleton<MongoDBSettings>(
-                Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>());
+            
             //if (!File.Exists(AppSettingsFileName))
             //{
             //    throw new Exception($"file {AppSettingsFileName} does not exist");
@@ -109,15 +108,59 @@ namespace NotificationService
                         new JsonFileProviderService<Notification>(connection));
                     services.AddScoped<INotificationService, FileNotificationService>();
                     break;
-
-            }            
+                case QueueDatabaseType.InMongoDB:
+                    //TODO: check for memory leaks 
+                    MongoDBSettings mongoDBSettings =
+                        Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
+                    services.AddScoped<INotificationService, NotificationMongoRepository>(
+                        config =>
+                        {
+                            return new NotificationMongoRepository(mongoDBSettings);
+                        });
+                    break;
+            }
+            switch (notificationSenderSettings.DatabaseType_PN)
+            {
+                case QueueDatabaseType.MySQL:
+                    connection = Configuration.GetConnectionString("MySQL_PN");
+                    services.AddDbContext<QueueSystemDbContext>(options => options.UseMySql(connection,
+                        new MySqlServerVersion(new Version(8, 0, 27)))
+                        .EnableSensitiveDataLogging(true),
+                        ServiceLifetime.Transient);
+                    services.AddScoped<IProblemNotificationService, NotificationService.Services.NotificationService>();
+                    break;
+                case QueueDatabaseType.InMemory:
+                    services.AddDbContext<QueueSystemDbContext>(options => options.UseInMemoryDatabase("Notification_PN"),
+                    ServiceLifetime.Transient);
+                    services.AddScoped<IProblemNotificationService, NotificationService.Services.NotificationService>();
+                    break;
+                case QueueDatabaseType.InBinaryFile:
+                    connection = Configuration.GetConnectionString("PathToBinaryFile_PN");
+                    services.AddScoped<IFileProviderService<Notification>>(x =>
+                        new BinaryFileProviderService<Notification>(connection));
+                    services.AddScoped<IProblemNotificationService, FileNotificationService>();
+                    break;
+                case QueueDatabaseType.InJsonFile:
+                    connection = Configuration.GetConnectionString("PathToJsonFile_PN");
+                    services.AddScoped<IFileProviderService<Notification>>(x =>
+                        new JsonFileProviderService<Notification>(connection));
+                    services.AddScoped<IProblemNotificationService, FileNotificationService>();
+                    break;
+                case QueueDatabaseType.InMongoDB:
+                    //TODO: check for memory leaks 
+                    MongoDBSettings mongoDBSettings =
+                        Configuration.GetSection("MongoDBSettings_PN").Get<MongoDBSettings>();
+                    services.AddScoped<IProblemNotificationService, NotificationMongoRepository>(
+                        config => new NotificationMongoRepository(mongoDBSettings));
+                    break;
+            }
             #endregion
 
 
             //BsonDefaults.MaxSerializationDepth = 2;
 
             #region FluentEmail_Smtp
-            if(notificationSenderSettings.SendMailIfNotificationServiceSenderHasException ||
+            if (notificationSenderSettings.SendMailIfNotificationServiceSenderHasException ||
                 notificationSenderSettings.SendMailIfProblemNotificationServiceHasException)
             {
                 SmtpClient smtp = new SmtpClient
@@ -140,8 +183,8 @@ namespace NotificationService
             services.AddScoped<IEmailService, EmailService>();            
             services.AddTransient<INamedPipeServerService, NamedPipeServerService>();
             services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
-            services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
-            services.AddScoped<IProblemNotificationsService, ProblemNotificationsService>();
+            //services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
+            services.AddScoped<IInspectorProblemNotificationsService, InspectorProblemNotificationsService>();
             servicesProvider = services.BuildServiceProvider();
 
             //#if UseMySQL

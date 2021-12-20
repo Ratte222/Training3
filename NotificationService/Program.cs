@@ -26,7 +26,7 @@ namespace NotificationService
             {
                 INotificationServiceSender notificationServiceSender = serviceProvider.GetService<INotificationServiceSender>();
                 notificationServiceSender.SetServiceProvider(serviceProvider);
-                IProblemNotificationsService problemNotificationsService = serviceProvider.GetService<IProblemNotificationsService>();
+                IInspectorProblemNotificationsService problemNotificationsService = serviceProvider.GetService<IInspectorProblemNotificationsService>();
                 problemNotificationsService.SetServiceProvider(serviceProvider);
                 INamedPipeServerService pipeServer_AddNotification = serviceProvider.GetService<INamedPipeServerService>();
                 INamedPipeServerService pipeServer_Re_sendProblemNotifications = serviceProvider.GetService<INamedPipeServerService>();
