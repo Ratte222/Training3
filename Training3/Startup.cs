@@ -158,16 +158,18 @@ namespace Training3
             //services.AddHostedService<NotificationServiceBackground>();
 
             #region MyNotificationService
+            string path = Path.GetDirectoryName(Directory.GetCurrentDirectory());
             NotificationServiceBuilder builder = new NotificationServiceBuilder(
-                @"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\NotificationService.exe");
+                Path.Combine(path, @"NotificationService\bin\Debug\netcoreapp3.1\NotificationService.exe"));
             builder
-                //.UseMySQL(connection)
+                .UseMySQL(connection)
                 //.UseBinaryFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.dat")
-                .UseJsonFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.json")
-                .StopNotificationServiceAfterException();
+                //.UseJsonFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.json")
+                .UseDbInMemory_PN()
+                .StopNotificationServiceAfterException(false);
             
-            var servicesProcess = builder.Build_UpdateConfiguration();
-            services.AddSingleton(servicesProcess);
+            //var servicesProcess = builder.Build_UpdateConfiguration();
+            //services.AddSingleton(servicesProcess);
             #endregion
         }
 

@@ -16,7 +16,13 @@
         <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.UseBinaryFile(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.String)">
             <exception cref="T:System.NullReferenceException"></exception>
         </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.UseBinaryFile_PN(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.String)">
+            <exception cref="T:System.NullReferenceException"></exception>
+        </member>
         <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.UseJsonFile(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.String)">
+            <exception cref="T:System.NullReferenceException"></exception>
+        </member>
+        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.UseJsonFile_PN(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.String)">
             <exception cref="T:System.NullReferenceException"></exception>
         </member>
         <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.StopProblemNotificationServiceAfterException(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,System.Boolean)">
