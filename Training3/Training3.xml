@@ -72,11 +72,5 @@
             <param name="time">in minute</param>        
             <returns></returns>
         </member>
-        <member name="M:Training3.NotificationServiceConfiguration.NotificationServiceBuilderExtensions.SetMongoSettings(Training3.NotificationServiceConfiguration.NotificationServiceBuilder,NotificationService.Helpers.MongoDBSettings)">
-            <summary>
-            set up database for failed notifications 
-            </summary>
-            <returns></returns>
-        </member>
     </members>
 </doc>

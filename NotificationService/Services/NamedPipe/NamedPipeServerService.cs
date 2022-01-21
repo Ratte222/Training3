@@ -23,16 +23,16 @@ namespace NotificationService.Services.NamedPipe
         private readonly ILogger<NamedPipeServerService> _logger;
         
         private readonly INotificationService _notificationService;
-        private readonly INotificationMongoRepository _notificationMongoRepository;
+        private readonly IProblemNotificationService _problemNotificationService;
 
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
         private bool serviceWork = true;
 
         public NamedPipeServerService(ILogger<NamedPipeServerService> logger, INotificationService notificationService,
-            INotificationMongoRepository notificationMongoRepository)
+            IProblemNotificationService notificationMongoRepository)
         {
             (_logger, _notificationService) = (logger, notificationService);
-            _notificationMongoRepository = notificationMongoRepository;            
+            _problemNotificationService = notificationMongoRepository;            
             
         }
 
@@ -93,8 +93,8 @@ namespace NotificationService.Services.NamedPipe
             {
                 StreamString ss = new StreamString(pipeServer);
                 incomingData.func1?.Invoke(waitHandler, _notificationService, ss, _logger);
-                incomingData.func2?.Invoke(_notificationMongoRepository, ss, _logger);
-                incomingData.action1?.Invoke(waitHandler, _notificationService, _notificationMongoRepository,
+                incomingData.func2?.Invoke(_problemNotificationService, ss, _logger);
+                incomingData.action1?.Invoke(waitHandler, _notificationService, _problemNotificationService,
                     ss, _logger);
             }
             catch (Exception ex)

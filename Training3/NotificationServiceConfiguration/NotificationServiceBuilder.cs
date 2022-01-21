@@ -56,9 +56,13 @@ namespace Training3.NotificationServiceConfiguration
             NotificationSenderSettings.SendMailIfProblemNotificationServiceHasException = false;
             NotificationSenderSettings.DeveloperEmail = null;
             NotificationSenderSettings.QueueDatabaseType = NotificationService.Constants.QueueDatabaseType.InMemory;
+            //TODO: delete this settings
             AppSettings.MongoDBSettings.ConnectionString = "mongodb://localhost:27017";
             AppSettings.MongoDBSettings.DatabaseName = "Training3DB";
             AppSettings.MongoDBSettings.NotificationDatabaseName = "Notifications";
+            AppSettings.MongoDBSettings_PN.ConnectionString = "mongodb://localhost:27017";
+            AppSettings.MongoDBSettings_PN.DatabaseName = "Training3DB_PN";
+            AppSettings.MongoDBSettings_PN.NotificationDatabaseName = "Notifications";
         }
     }
 }

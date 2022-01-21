@@ -162,14 +162,19 @@ namespace Training3
             NotificationServiceBuilder builder = new NotificationServiceBuilder(
                 Path.Combine(path, @"NotificationService\bin\Debug\netcoreapp3.1\NotificationService.exe"));
             builder
-                .UseMySQL(connection)
+                .UseMySQL("server=localhost;user=artur;password=12345678;database=trainingdb3; AllowPublicKeyRetrieval=True;")
                 //.UseBinaryFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.dat")
                 //.UseJsonFile(@"E:\Project\C#\VRealSoft\Training3\NotificationService\bin\Debug\netcoreapp3.1\binaryDb.json")
-                .UseDbInMemory_PN()
+                .UseMongo_PM(new NotificationService.Helpers.MongoDBSettings()
+                {
+                    ConnectionString = "mongodb://localhost:27017",
+                    DatabaseName = "Training3DB_PN",
+                    NotificationDatabaseName = "Notifications"
+                })
                 .StopNotificationServiceAfterException(false);
             
-            //var servicesProcess = builder.Build_UpdateConfiguration();
-            //services.AddSingleton(servicesProcess);
+            var servicesProcess = builder.Build_UpdateConfiguration();
+            services.AddSingleton(servicesProcess);
             #endregion
         }
 

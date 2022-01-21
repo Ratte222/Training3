@@ -15,6 +15,9 @@ namespace NotificationService.Helpers
             = new EmailConfiguration();
         public MongoDBSettings MongoDBSettings { get; set; }
             = new MongoDBSettings();
+
+        public MongoDBSettings MongoDBSettings_PN { get; set; }
+            = new MongoDBSettings();
     }
 
     public class ConnectionStrings

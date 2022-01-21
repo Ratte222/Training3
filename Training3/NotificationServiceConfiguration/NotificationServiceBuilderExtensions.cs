@@ -247,15 +247,19 @@ namespace Training3.NotificationServiceConfiguration
             return builder;
         }
 
-        /// <summary>
-        /// set up database for failed notifications 
-        /// </summary>
-        /// <returns></returns>
-        public static NotificationServiceBuilder SetMongoSettings(this NotificationServiceBuilder builder,
+        
+        public static NotificationServiceBuilder UseMongo(this NotificationServiceBuilder builder,
             MongoDBSettings mongoDBSettings)
         {
             _ = builder ?? throw new NullReferenceException(
                 $"{nameof(builder)} is null");
+            ValidateMongoSettings(mongoDBSettings);
+            builder.AppSettings.MongoDBSettings = mongoDBSettings;
+            builder.NotificationSenderSettings.QueueDatabaseType = QueueDatabaseType.InMongoDB;
+            return builder;
+        }
+        private static void ValidateMongoSettings(MongoDBSettings mongoDBSettings)
+        {
             _ = mongoDBSettings ?? throw new NullReferenceException(
                 $"{nameof(mongoDBSettings)} is null");
             _ = mongoDBSettings.ConnectionString ?? throw new NullReferenceException(
@@ -264,7 +268,15 @@ namespace Training3.NotificationServiceConfiguration
                 $"{nameof(mongoDBSettings.DatabaseName)} is null");
             _ = mongoDBSettings.NotificationDatabaseName ?? throw new NullReferenceException(
                 $"{nameof(mongoDBSettings.NotificationDatabaseName)} is null");
-            builder.AppSettings.MongoDBSettings = mongoDBSettings;
+        }
+        public static NotificationServiceBuilder UseMongo_PM(this NotificationServiceBuilder builder,
+            MongoDBSettings mongoDBSettings)
+        {
+            _ = builder ?? throw new NullReferenceException(
+                $"{nameof(builder)} is null");
+            ValidateMongoSettings(mongoDBSettings);
+            builder.AppSettings.MongoDBSettings_PN = mongoDBSettings;
+            builder.NotificationSenderSettings.DatabaseType_PN = QueueDatabaseType.InMongoDB;
             return builder;
         }
     }

@@ -12,8 +12,8 @@ namespace NotificationService.Helpers
     {
         public string pipeName;
         public Func<AutoResetEvent, INotificationService, StreamString, ILogger, bool> func1;
-        public Func<INotificationMongoRepository, StreamString, ILogger, bool> func2;
-        public Action<AutoResetEvent, INotificationService, INotificationMongoRepository, 
+        public Func<IProblemNotificationService, StreamString, ILogger, bool> func2;
+        public Action<AutoResetEvent, INotificationService, IProblemNotificationService, 
             StreamString, ILogger> action1;
 
     }

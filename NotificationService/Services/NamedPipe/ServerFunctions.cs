@@ -42,7 +42,7 @@ namespace NotificationService.Services.NamedPipe
             return result;
         }
 
-        public static bool UpdateProblemNotification(INotificationMongoRepository notificationMongoRepository,
+        public static bool UpdateProblemNotification(IProblemNotificationService notificationMongoRepository,
             StreamString ss, ILogger logger)
         {
             bool result = false;
@@ -54,12 +54,12 @@ namespace NotificationService.Services.NamedPipe
             Notification notification = JsonConvert.DeserializeObject<Notification>(JsonNotification);
             //notification.Id = Guid.NewGuid().ToString();
             notification.DateTimeCreate = DateTime.UtcNow;
-            notificationMongoRepository.ReplaceOneById(notification);
+            notificationMongoRepository.Update(notification);
             ss.WriteString("Notification updated successfully");
             return result;
         }
 
-        public static bool CheckProblemNotification(INotificationMongoRepository notificationMongoRepository, 
+        public static bool CheckProblemNotification(IProblemNotificationService notificationMongoRepository, 
             StreamString ss, ILogger logger)
         {
             bool result = false;
@@ -71,12 +71,11 @@ namespace NotificationService.Services.NamedPipe
                 Convert.ToInt32(j.SelectToken("PageNumber")));
             //int pageLength = Convert.ToInt32(j.SelectToken("PageLength"));
             //int pageNumber = Convert.ToInt32(j.SelectToken("PageNumber"));
-            var query = notificationMongoRepository.GetQueryable()
-                .Skip(pageResponse.Skip).Take(pageResponse.Take);
-            pageResponse.Items = query.ToList();
+            var query = notificationMongoRepository.GetAll();
+            pageResponse.Items = query.Skip(pageResponse.Skip).Take(pageResponse.Take).ToList();
             if (pageResponse.Items.Count > 0)
             {
-                pageResponse.TotalItems = notificationMongoRepository.Count(Builders<Notification>.Filter.Empty);
+                pageResponse.TotalItems = query.Count();
                 string problemNotificationsJson = JsonConvert.SerializeObject(pageResponse);
                 ss.WriteString(problemNotificationsJson);
             }
@@ -88,7 +87,7 @@ namespace NotificationService.Services.NamedPipe
         }
 
         public static void Re_sendProblemNotifications(AutoResetEvent wainHandler, INotificationService notificationService,
-            INotificationMongoRepository notificationMongoRepository, StreamString ss, ILogger logger)
+            IProblemNotificationService notificationMongoRepository, StreamString ss, ILogger logger)
         {
             ss.WriteString("I am the one true server!");
             if(ss.ReadString().Equals("Re_send"))
