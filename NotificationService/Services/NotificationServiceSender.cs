@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using FluentEmail.Core;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Telegram.Bot;
 
 namespace NotificationService.Services
 {
@@ -27,19 +28,21 @@ namespace NotificationService.Services
         //private readonly IFluentEmail _fluentEmail;
         private readonly INotificationService _notificationService;
         private readonly INotificationSenderSettings _notificationSenderSettings;
+        private readonly ITelegramService _telegramService;
         
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
 
         public NotificationServiceSender(ILogger<NotificationServiceSender> logger, IEmailService emailService,
-            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings)
+            INotificationService notificationService, INotificationSenderSettings notificationSenderSettings, ITelegramService telegramService)
         {
-            (_logger, _emailService,  _notificationSenderSettings) = 
-                (logger, emailService,  notificationSenderSettings);
-            _notificationService = notificationService;            
+            (_logger, _emailService, _notificationSenderSettings) =
+                (logger, emailService, notificationSenderSettings);
+            _notificationService = notificationService;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
+            _telegramService = telegramService;
         }
 
         //public void AddCancellationToken(CancellationTokenSource cancellationTokenSource)
@@ -126,7 +129,7 @@ namespace NotificationService.Services
             }
             _logger.LogWarning("NotificationServiceSender stoped");
         }
-
+         
         private void Mailing(Notification notification)
         {
             if (notification is null)
@@ -157,9 +160,31 @@ namespace NotificationService.Services
 
         private void SendViaTelegram(Notification notification)
         {
-            var exception = new NotImplementedException();
-            NegativeResultSend(notification, exception);
+            //var exception = new NotImplementedException();
+            //NegativeResultSend(notification, exception);
+            if (notification is null)
+                return;
+            if (!notification.TelegramChatId.HasValue)
+                return;
+            Task taskResult = _telegramService.SendAsync(notification.MessageBody, notification.TelegramChatId.Value);
+            try//just in case
+            {
+                taskResult.Wait();
+            }
+            catch (Exception ex)//SmtpException, ObjectDisposedException, InvalidOperationException, ArgumentNullException
+            {
+                _logger.LogInformation(ex, $"Notification id = {notification.Id}");
+            }
+            if (taskResult.Status == TaskStatus.RanToCompletion)
+            {
+                PositiveResultSend(notification);
+            }
+            else
+            {
+                NegativeResultSend(notification, taskResult.Exception);
+            }
         }
+
 
         private void PositiveResultSend(Notification notification)
         {

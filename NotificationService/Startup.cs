@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Json;
 using NotificationService.Constants;
 using DAL_NS.Entity;
+using Telegram.Bot;
 
 namespace NotificationService
 {
@@ -50,7 +51,7 @@ namespace NotificationService
                 = Configuration.GetSection(nameof(NotificationSenderSettings)).Get<NotificationSenderSettings>();
             services.AddSingleton<INotificationSenderSettings>(
                 notificationSenderSettings);
-            
+            TelegramBotSettings telegramBotSettings = Configuration.GetSection("TelegramBotSettings").Get<TelegramBotSettings>();
             //if (!File.Exists(AppSettingsFileName))
             //{
             //    throw new Exception($"file {AppSettingsFileName} does not exist");
@@ -185,8 +186,13 @@ namespace NotificationService
             services.AddScoped<INotificationServiceSender, NotificationServiceSender>();
             //services.AddScoped<INotificationMongoRepository, NotificationMongoRepository>();
             services.AddScoped<IInspectorProblemNotificationsService, InspectorProblemNotificationsService>();
-            servicesProvider = services.BuildServiceProvider();
 
+            //if (!string.IsNullOrEmpty(telegramBotSettings.TelegramToken))
+            //{
+            TelegramBotClient Bot = new TelegramBotClient(telegramBotSettings.TelegramToken);
+            services.AddSingleton<TelegramBotClient>(Bot);
+            services.AddScoped<ITelegramService, TelegramService>();                
+            servicesProvider = services.BuildServiceProvider();
             //#if UseMySQL
             if (notificationSenderSettings.QueueDatabaseType == QueueDatabaseType.MySQL)
             {

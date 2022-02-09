@@ -173,8 +173,8 @@ namespace Training3
                 })
                 .StopNotificationServiceAfterException(false);
             
-            var servicesProcess = builder.Build_UpdateConfiguration();
-            services.AddSingleton(servicesProcess);
+            //var servicesProcess = builder.Build_UpdateConfiguration();
+            //services.AddSingleton(servicesProcess);
             #endregion
         }
 

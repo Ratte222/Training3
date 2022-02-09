@@ -23,6 +23,7 @@ namespace DAL_NS.Entity
         public NotificationException Exception { get; set; } = new NotificationException();
         public MailSettings MailSettings { get; set; }
 
+        public long? TelegramChatId { get; set; }
         public Notification()
         {
             //Id = Guid.NewGuid().ToString();

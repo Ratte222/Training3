@@ -7,6 +7,7 @@ using Serilog;
 using System;
 using System.Threading;
 using NotificationService.Helpers;
+using Telegram.Bot;
 
 namespace NotificationService
 {
@@ -23,7 +24,7 @@ namespace NotificationService
             startup.ConfigureService(ref serviceProvider);
             var logger = serviceProvider.GetService<ILogger<Program>>();
             try
-            {
+            {                
                 INotificationServiceSender notificationServiceSender = serviceProvider.GetService<INotificationServiceSender>();
                 notificationServiceSender.SetServiceProvider(serviceProvider);
                 IInspectorProblemNotificationsService problemNotificationsService = serviceProvider.GetService<IInspectorProblemNotificationsService>();

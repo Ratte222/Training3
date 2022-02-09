@@ -279,5 +279,13 @@ namespace Training3.NotificationServiceConfiguration
             builder.NotificationSenderSettings.DatabaseType_PN = QueueDatabaseType.InMongoDB;
             return builder;
         }
+
+        public static NotificationServiceBuilder SetTelegramBotToken(this NotificationServiceBuilder builder, string telegramToken)
+        {
+            _ = builder ?? throw new NullReferenceException(
+                $"{nameof(builder)} is null");
+            builder.AppSettings.TelegramBotSettings.TelegramToken = telegramToken;
+            return builder;
+        }
     }
 }

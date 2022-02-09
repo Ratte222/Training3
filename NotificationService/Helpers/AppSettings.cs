@@ -18,6 +18,8 @@ namespace NotificationService.Helpers
 
         public MongoDBSettings MongoDBSettings_PN { get; set; }
             = new MongoDBSettings();
+        public TelegramBotSettings TelegramBotSettings { get; set; }
+            = new TelegramBotSettings();
     }
 
     public class ConnectionStrings
