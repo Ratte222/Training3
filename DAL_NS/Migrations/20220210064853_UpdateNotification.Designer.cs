@@ -3,14 +3,16 @@ using System;
 using DAL_NS.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL_NS.Migrations
 {
     [DbContext(typeof(QueueSystemDbContext))]
-    partial class QueueSystemDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220210064853_UpdateNotification")]
+    partial class UpdateNotification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
