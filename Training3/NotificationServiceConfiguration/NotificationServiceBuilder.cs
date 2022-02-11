@@ -44,6 +44,10 @@ namespace Training3.NotificationServiceConfiguration
             return process;
         }
 
+        public NotificationServiceProcess Build()
+        {
+            return new NotificationServiceProcess(PathToNotificationService);
+        }
         private void SetDefaultSettings()
         {
             NotificationSenderSettings.SleepTimeNotification = 10;

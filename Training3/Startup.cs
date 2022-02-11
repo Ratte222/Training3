@@ -172,9 +172,10 @@ namespace Training3
                     NotificationDatabaseName = "Notifications"
                 })
                 .StopNotificationServiceAfterException(false);
-            
+
             //var servicesProcess = builder.Build_UpdateConfiguration();
-            //services.AddSingleton(servicesProcess);
+            var servicesProcess = builder.Build();
+            services.AddSingleton(servicesProcess);
             #endregion
         }
 
